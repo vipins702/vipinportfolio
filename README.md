@@ -150,6 +150,7 @@ ADMIN_EMAIL=you@domain.com ADMIN_PASSWORD='YourSecurePass#1' npm start
 | `DATA_DIR` | `./data` | Directory for the SQLite database file |
 | `ADMIN_EMAIL` | `admin@vsmtech.ai` | Admin email (used only on first run to seed the admin account) |
 | `ADMIN_PASSWORD` | `ChangeMe@123` | Admin password (used only on first run; shows a banner until changed) |
+| `ADMIN_RESET` | — | Locked out? Set this to any new value (e.g. today's date) with `ADMIN_EMAIL` and `ADMIN_PASSWORD`, then redeploy. The password is reset once per value. |
 
 ---
 

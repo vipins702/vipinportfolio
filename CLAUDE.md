@@ -40,6 +40,7 @@ Endpoints after start: `http://localhost:3000` (site), `http://localhost:3000/ad
 | `SESSION_SECRET` | (stored in DB) | Signs admin session cookies. Set it in production so it is not kept in the database. |
 | `ADMIN_EMAIL` | `admin@vsmtech.ai` | **First run only** — seeds the admin row |
 | `ADMIN_PASSWORD` | `ChangeMe@123` | First run only; if unset, `must_change=1` forces a banner |
+| `ADMIN_RESET` | — | Lockout recovery: any new value resets `ADMIN_EMAIL`'s password to `ADMIN_PASSWORD` on the next boot, once per value (kv `adminReset`) |
 | `SITE_URL` | derived from request | Absolute origin for canonical/OG/sitemap URLs. **Set this in production** |
 | `SMTP_HOST` / `SMTP_PORT` | — / `465` | Unset ⇒ mail is logged to `mail_log`, never sent |
 | `SMTP_USER` / `SMTP_PASS` | — | Gmail needs an App Password, not the account password |

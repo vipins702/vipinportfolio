@@ -83,11 +83,30 @@ function boot() {
       await kvSet('crmBackfilled', true);
     }
 
+    // Trimmed like the login form trims what is typed, so a stray space or newline pasted
+    // into an environment variable cannot produce a password nobody can enter.
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@vsmtech.ai').trim().toLowerCase();
+    const adminPw = (process.env.ADMIN_PASSWORD || '').trim();
     if (!(await db.one('SELECT 1 AS x FROM users'))) {
-      const email = (process.env.ADMIN_EMAIL || 'admin@vsmtech.ai').toLowerCase();
-      const pw = process.env.ADMIN_PASSWORD || 'ChangeMe@123';
-      await db.run('INSERT INTO users(email,name,pass,must_change) VALUES(?,?,?,?)', [email, 'Admin', hash(pw), !process.env.ADMIN_PASSWORD]);
-      console.log(`\n  First run — admin created:\n  Email: ${email}\n  Password: ${process.env.ADMIN_PASSWORD ? '(from ADMIN_PASSWORD)' : pw}\n`);
+      const pw = adminPw || 'ChangeMe@123';
+      await db.run('INSERT INTO users(email,name,pass,must_change) VALUES(?,?,?,?)', [adminEmail, 'Admin', hash(pw), !adminPw]);
+      console.log(`\n  First run — admin created:\n  Email: ${adminEmail}\n  Password: ${adminPw ? '(from ADMIN_PASSWORD)' : pw}\n`);
+    }
+
+    // Locked out: set ADMIN_RESET to any new value (today's date works) alongside ADMIN_EMAIL
+    // and ADMIN_PASSWORD, then redeploy. That admin's password is set once; the same
+    // ADMIN_RESET value never applies twice, so leaving it set is harmless. Change the
+    // value to reset again.
+    const reset = (process.env.ADMIN_RESET || '').trim();
+    if (reset && (await kvGet('adminReset')) !== reset) {
+      if (adminPw.length < 8) console.error('ADMIN_RESET is set but ADMIN_PASSWORD is missing or shorter than 8 characters; nothing was reset.');
+      else {
+        const u = await db.one('SELECT id FROM users WHERE email=?', [adminEmail]);
+        if (u) await db.run('UPDATE users SET pass=?, must_change=FALSE WHERE id=?', [hash(adminPw), u.id]);
+        else await db.run('INSERT INTO users(email,name,pass,must_change) VALUES(?,?,?,FALSE)', [adminEmail, 'Admin', hash(adminPw)]);
+        await kvSet('adminReset', reset);
+        console.log(`Admin password reset for ${adminEmail} (ADMIN_RESET=${reset}).`);
+      }
     }
   })().catch(e => { booted = null; throw e; }); // a failed boot is retried on the next request
   return booted;
