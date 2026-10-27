@@ -72,9 +72,11 @@ function boot() {
     // for setups that have not set SESSION_SECRET yet.
     if (process.env.SESSION_SECRET) SECRET = process.env.SESSION_SECRET;
     else {
-      let s = await kvGet('secret');
-      if (!s) { s = crypto.randomBytes(32).toString('hex'); await kvSet('secret', s); }
-      SECRET = s;
+      // Two serverless instances can boot at the same moment. Insert-if-absent and then read
+      // back, so they all end up with the first key written instead of one key each, which
+      // would sign you in on one instance and reject you on the next.
+      await db.run('INSERT INTO kv(k,v) VALUES(?,?) ON CONFLICT(k) DO NOTHING', ['secret', JSON.stringify(crypto.randomBytes(32).toString('hex'))]);
+      SECRET = await kvGet('secret');
     }
 
     if (!(await kvGet('crmBackfilled'))) {

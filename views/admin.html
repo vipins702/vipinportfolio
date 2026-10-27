@@ -308,7 +308,11 @@ function login(msg){root.innerHTML=`<div class="login"><form id="lf"><div class=
 <div class="err" role="alert">${esc(msg||'')}</div><button class="btn">Sign in</button></form></div>`;
   $('#le').focus();
   $('#lf').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('.btn');b.disabled=true;b.textContent='Signing in…';
-    try{await api('login','POST',Object.fromEntries(new FormData(e.target)));boot()}catch(x){login(x&&x.message)}}}
+    try{await api('login','POST',Object.fromEntries(new FormData(e.target)))}catch(x){return login(x&&x.message)}
+    // the password was right; if the very next request is not signed in, the session did not stick
+    try{me=await fetch('/api/admin/me').then(r=>r.ok?r.json():null)}catch{me=null}
+    if(!me)return login('Your password was accepted, but the sign-in did not stick. Allow cookies for this site, or try a private window. If it keeps happening, set SESSION_SECRET in Vercel and redeploy.');
+    boot()}}
 
 // sidebar: [key,label,icon] rows, a bare [label] starts a group
 const NAV=[['Overview'],['dash','Dashboard','M3 3h8v10H3zM13 3h8v6h-8zM13 11h8v10h-8zM3 15h8v6H3z'],
