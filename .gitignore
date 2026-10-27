@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Runtime data — NEVER commit this.
+# data/site.db holds leads, appointments, the admin user's password hash and
+# kv['secret'], the HMAC key used to sign session cookies. Publishing it would
+# expose contact details and let anyone forge an admin session.
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Local backups taken before theme changes (includes a copy of site.db)
+design-system/_backup/
+
+# Logs and scratch
+*.log
+.tmp.*

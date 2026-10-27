@@ -1,0 +1,254 @@
+/* Signal — generated from design-system/tokens.json. Do not edit by hand. */
+/* Regenerate: node tools/gen-tokens.js design-system/tokens.json public/tokens.css */
+
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-void: #07070b;
+  --bg-canvas: #0d0d14;
+  --bg-surface: #16161f;
+  --bg-elevated: #1e1e2a;
+  --bg-glass: #ffffff0a;
+  --edge-highlight: #ffffff1f;
+  --text-primary: #f2f2f7;
+  --text-secondary: #a0a0b0;
+  --text-tertiary: #8a8a9c;
+  --hue-source: #ff9f0a;
+  --hue-stage: #bf5af2;
+  --hue-profile: #ff375f;
+  --hue-map: #0a84ff;
+  --hue-verify: #40cbe0;
+  --hue-load: #30d158;
+  --accent: #6a4ae8;
+  --accent-bright: #9d85ff;
+  --accent-hover: #7d5ff0;
+  --accent-pressed: #5634d6;
+  --on-accent: #ffffff;
+  --separator: #ffffff14;
+  --border-control: #666680;
+  --focus-ring: #9d85ff;
+  --danger: #ff6961;
+  --danger-surface: #2e1210;
+  --glass-nav: #0d0d14cc;
+  --glass-sheet: #07070bf0;
+  --scrim: #07070beb;
+  --ink-900: #07070b;
+  --ink-800: #16161f;
+  --ink-700: #1e1e2a;
+  --on-ink: #f2f2f7;
+  --on-ink-secondary: #a0a0b0;
+  --accent-on-ink: #9d85ff;
+  --separator-on-ink: #ffffff1f;
+  --glass-ink: #07070bcc;
+  --glass-surface: #16161fb3;
+  --hue-source-on-ink: #ff9f0a;
+  --hue-stage-on-ink: #bf5af2;
+  --hue-profile-on-ink: #ff375f;
+  --hue-map-on-ink: #0a84ff;
+  --hue-verify-on-ink: #40cbe0;
+  --hue-load-on-ink: #30d158;
+  --shadow-panel: 0 24px 64px -24px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --shadow-card: 0 8px 32px -12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --glow-accent: 0 12px 40px -10px rgba(106, 74, 232, 0.6);
+  --glow-hue: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 48px -16px rgba(0, 0, 0, 0.8);
+  --shadow-focus: 0 0 0 4px rgba(157, 133, 255, 0.3);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --bg-void: #eeeef3;
+    --bg-canvas: #f7f7fa;
+    --bg-surface: #ffffff;
+    --bg-elevated: #ffffff;
+    --bg-glass: #0d0d1408;
+    --edge-highlight: #ffffff;
+    --text-primary: #0d0d14;
+    --text-secondary: #5a5a6e;
+    --text-tertiary: #6b6b80;
+    --hue-source: #a35c00;
+    --hue-stage: #8b2fc9;
+    --hue-profile: #c9134a;
+    --hue-map: #0063c6;
+    --hue-verify: #0b6f85;
+    --hue-load: #1a7a33;
+    --accent: #5b3ce0;
+    --accent-bright: #5b3ce0;
+    --accent-hover: #4d2fc4;
+    --accent-pressed: #42269f;
+    --on-accent: #ffffff;
+    --separator: #0d0d1414;
+    --border-control: #85859a;
+    --focus-ring: #5b3ce0;
+    --danger: #c0231a;
+    --danger-surface: #fff0ef;
+    --glass-nav: #f7f7facc;
+    --glass-sheet: #07070bf0;
+    --scrim: #07070beb;
+    --ink-900: #07070b;
+    --ink-800: #16161f;
+    --ink-700: #1e1e2a;
+    --on-ink: #f2f2f7;
+    --on-ink-secondary: #a0a0b0;
+    --accent-on-ink: #9d85ff;
+    --separator-on-ink: #ffffff1f;
+    --glass-ink: #07070bcc;
+    --glass-surface: #ffffffb3;
+    --hue-source-on-ink: #ff9f0a;
+    --hue-stage-on-ink: #bf5af2;
+    --hue-profile-on-ink: #ff375f;
+    --hue-map-on-ink: #0a84ff;
+    --hue-verify-on-ink: #40cbe0;
+    --hue-load-on-ink: #30d158;
+    --shadow-panel: 0 12px 32px -12px rgba(13, 13, 20, 0.12);
+    --shadow-card: 0 4px 16px -6px rgba(13, 13, 20, 0.1);
+    --glow-accent: 0 12px 40px -10px rgba(91, 60, 224, 0.4);
+    --glow-hue: 0 8px 24px -10px rgba(13, 13, 20, 0.14);
+    --shadow-focus: 0 0 0 4px rgba(91, 60, 224, 0.26);
+  }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg-void: #eeeef3;
+  --bg-canvas: #f7f7fa;
+  --bg-surface: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-glass: #0d0d1408;
+  --edge-highlight: #ffffff;
+  --text-primary: #0d0d14;
+  --text-secondary: #5a5a6e;
+  --text-tertiary: #6b6b80;
+  --hue-source: #a35c00;
+  --hue-stage: #8b2fc9;
+  --hue-profile: #c9134a;
+  --hue-map: #0063c6;
+  --hue-verify: #0b6f85;
+  --hue-load: #1a7a33;
+  --accent: #5b3ce0;
+  --accent-bright: #5b3ce0;
+  --accent-hover: #4d2fc4;
+  --accent-pressed: #42269f;
+  --on-accent: #ffffff;
+  --separator: #0d0d1414;
+  --border-control: #85859a;
+  --focus-ring: #5b3ce0;
+  --danger: #c0231a;
+  --danger-surface: #fff0ef;
+  --glass-nav: #f7f7facc;
+  --glass-sheet: #07070bf0;
+  --scrim: #07070beb;
+  --ink-900: #07070b;
+  --ink-800: #16161f;
+  --ink-700: #1e1e2a;
+  --on-ink: #f2f2f7;
+  --on-ink-secondary: #a0a0b0;
+  --accent-on-ink: #9d85ff;
+  --separator-on-ink: #ffffff1f;
+  --glass-ink: #07070bcc;
+  --glass-surface: #ffffffb3;
+  --hue-source-on-ink: #ff9f0a;
+  --hue-stage-on-ink: #bf5af2;
+  --hue-profile-on-ink: #ff375f;
+  --hue-map-on-ink: #0a84ff;
+  --hue-verify-on-ink: #40cbe0;
+  --hue-load-on-ink: #30d158;
+  --shadow-panel: 0 12px 32px -12px rgba(13, 13, 20, 0.12);
+  --shadow-card: 0 4px 16px -6px rgba(13, 13, 20, 0.1);
+  --glow-accent: 0 12px 40px -10px rgba(91, 60, 224, 0.4);
+  --glow-hue: 0 8px 24px -10px rgba(13, 13, 20, 0.14);
+  --shadow-focus: 0 0 0 4px rgba(91, 60, 224, 0.26);
+}
+
+:root {
+  /* spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --space-32: 128px;
+  --space-40: 160px;
+  /* radius */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-2xl: 36px;
+  --radius-pill: 980px;
+  /* measure */
+  --measure-page: 1120px;
+  --measure-panel: 680px;
+  --measure-prose: 32em;
+  --measure-headline: 15em;
+  /* zIndex */
+  --z-aurora: 0;
+  --z-base: 1;
+  --z-nav: 50;
+  --z-sheet: 60;
+  --z-modal: 100;
+  /* font families */
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter Display", Inter, system-ui, sans-serif;
+  --font-text: -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui, "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* type styles */
+.display-xl { font-family: var(--font-display); font-size: 88px; line-height: 0.98; font-weight: 600; letter-spacing: -0.03em; }
+.display-lg { font-family: var(--font-display); font-size: 64px; line-height: 1.02; font-weight: 600; letter-spacing: -0.026em; }
+.display-md { font-family: var(--font-display); font-size: 44px; line-height: 1.08; font-weight: 600; letter-spacing: -0.022em; }
+.display-sm { font-family: var(--font-display); font-size: 34px; line-height: 1.12; font-weight: 600; letter-spacing: -0.019em; }
+.headline-lg { font-family: var(--font-display); font-size: 26px; line-height: 1.2; font-weight: 600; letter-spacing: -0.015em; }
+.headline-md { font-family: var(--font-display); font-size: 20px; line-height: 1.3; font-weight: 600; letter-spacing: -0.012em; }
+.headline-sm { font-family: var(--font-display); font-size: 17px; line-height: 1.35; font-weight: 600; letter-spacing: -0.008em; }
+.body-lg { font-family: var(--font-text); font-size: 19px; line-height: 1.5; font-weight: 400; letter-spacing: -0.004em; }
+.body { font-family: var(--font-text); font-size: 16px; line-height: 1.6; font-weight: 400; letter-spacing: -0.001em; }
+.body-sm { font-family: var(--font-text); font-size: 14px; line-height: 1.5; font-weight: 400; letter-spacing: 0; }
+.eyebrow { font-family: var(--font-text); font-size: 11px; line-height: 1.2; font-weight: 600; letter-spacing: 0.14em; }
+.mono-label { font-family: var(--font-mono); font-size: 12px; line-height: 1.3; font-weight: 500; letter-spacing: 0.04em; }
+.label-form { font-family: var(--font-text); font-size: 13px; line-height: 1.3; font-weight: 500; letter-spacing: 0; }
+.button { font-family: var(--font-text); font-size: 15px; line-height: 1.2; font-weight: 500; letter-spacing: -0.001em; }
+.numeral { font-family: var(--font-text); font-size: 64px; line-height: 1; font-weight: 600; letter-spacing: -0.03em; }
+
+/* Compatibility aliases — names the stylesheets use that this token set
+   does not define itself. Generated, not hand-maintained. */
+:root {
+  --ink: var(--ink-900);
+  --ink2: var(--ink-800);
+  --paper: var(--bg-canvas);
+  --card: var(--bg-surface);
+  --text: var(--text-primary);
+  --mute: var(--text-secondary);
+  --onDark: var(--on-ink);
+  --onDarkMute: var(--on-ink-secondary);
+  --blue: var(--accent);
+  --blueD: var(--accent-on-ink);
+  --blueText: var(--accent-bright);
+  --line: var(--separator-on-ink);
+  --lineD: var(--separator);
+  --radius: var(--radius-lg);
+  --bg-raised: var(--bg-surface);
+  --bg-raised-2: var(--bg-elevated);
+  --bg-sunken: var(--bg-void);
+  --band-ink: var(--ink-900);
+  --band-raised: var(--ink-800);
+  --band-raised-2: var(--ink-700);
+  --label-primary: var(--text-primary);
+  --label-secondary: var(--text-secondary);
+  --label-tertiary: var(--text-tertiary);
+  --label-on-ink: var(--on-ink);
+  --label-on-ink-secondary: var(--on-ink-secondary);
+  --accent-text: var(--accent-bright);
+  --accent-deep: var(--accent);
+  --on-accent-secondary: var(--on-accent);
+  --scrim-hero: var(--scrim);
+  --shadow-hero: var(--shadow-panel);
+  --shadow-xs: var(--shadow-card);
+}

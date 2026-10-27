@@ -1,0 +1,16 @@
+{
+  "name": "vipin-singh-site",
+  "version": "1.0.0",
+  "description": "Premium portfolio + CMS + lead/appointment capture. Built by VSM Tech & AI Solutions Agency.",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "nodemailer": "^10.2.1"
+  }
+}

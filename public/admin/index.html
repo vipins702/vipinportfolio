@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin · Vipin Singh Site</title><meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/tokens.css?v={{V}}">
+<style>
+:root{--ink:#000;--ink2:#1d1d1f;--gold:#0071e3;--gold2:#fff;--bg:#f5f5f7;--line:#d2d2d7;--mute:#6e6e73;--blue:#0071e3}
+*{box-sizing:border-box;margin:0}[hidden]{display:none!important}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",system-ui,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.47;background:var(--bg);color:#1d1d1f;-webkit-font-smoothing:antialiased}
+h1,h2{font-weight:600;letter-spacing:-.019em;line-height:1.1}
+button,input,select,textarea{font-family:inherit;font-size:15px}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+aside{background:var(--ink2);color:#f5f5f7;padding:24px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}
+aside .logo{font-size:19px;font-weight:600;letter-spacing:-.012em;padding:0 10px 22px}aside .logo small{display:block;font-size:11px;font-weight:500;color:#a1a1a6;letter-spacing:0}
+aside a{display:block;padding:10px 12px;border-radius:10px;color:#a1a1a6;text-decoration:none;cursor:pointer;margin-bottom:2px}
+aside a:hover{background:rgba(255,255,255,.08);color:#fff}aside a.on{background:var(--blue);color:#fff}
+aside .sp{flex:1}aside .by{font-size:11px;color:#86868b;padding:10px}
+main{padding:30px clamp(16px,3vw,40px);max-width:1100px;width:100%}
+main h1{font-size:32px;margin-bottom:4px}main .sub{color:var(--mute);margin-bottom:24px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px}
+.stat{background:#fff;border-radius:16px;padding:20px}.stat b{font-size:36px;font-weight:600;letter-spacing:-.022em;display:block;line-height:1.1;font-variant-numeric:tabular-nums}.stat span{color:var(--mute);font-size:13px}
+.panel{background:#fff;border-radius:16px;padding:22px;margin-bottom:18px}.panel h2{font-size:21px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse}th{text-align:left;font-size:12px;color:var(--mute);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:11px 10px;border-bottom:1px solid #f0f0f2;vertical-align:top;transition:background .15s ease}tr:hover td{background:#fafafa}tr:last-child td{border:0}
+.tw{overflow-x:auto}.msgc{max-width:320px;color:#3a3a3c}.sm{font-size:13px;color:var(--mute)}
+.btn{border:0;cursor:pointer;background:var(--blue);color:#fff;padding:10px 18px;border-radius:980px;font-weight:500}.btn:hover{background:#0077ed}
+.btn.alt{background:#fff;color:var(--blue);border:1px solid var(--line)}
+.btn.del{background:#fff;color:#c0372c;border:1px solid #e8c9c5;padding:6px 12px;font-size:13px;border-radius:980px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#1d1d1f}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--blue);box-shadow:0 0 0 4px rgba(0,113,227,.18)}
+textarea{min-height:76px;resize:vertical}label{display:block;font-size:12px;font-weight:600;color:#445;margin:10px 0 4px;text-transform:none}
+select.st{width:auto;padding:5px 8px;font-size:13px}
+.pill{display:inline-block;padding:3px 11px;border-radius:99px;background:#eee;font-size:12px;font-weight:600;letter-spacing:.01em}.pill.new{background:#dbeafe;color:#1e40af}.pill.contacted{background:#fef3c7;color:#92400e}.pill.qualified,.pill.confirmed,.pill.won{background:#d1fae5;color:#065f46}.pill.lost{background:#fee2e2;color:#991b1b}.pill.pending{background:#fef9c3;color:#854d0e}.pill.completed{background:#dbeafe;color:#1565c0}.pill.cancelled{background:#f3f4f6;color:#6b7280}
+.bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}.bar input{max-width:280px}
+.btn.sml{padding:6px 14px;font-size:13px}
+.btn.alt.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.h3{font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mute);margin-bottom:12px}
+svg.spark{width:100%;height:120px;display:block}
+.axis{display:flex;justify-content:space-between;font-size:11px;color:var(--mute);margin-top:6px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:26px}
+@media(max-width:760px){.split{grid-template-columns:1fr}}
+.brow{display:grid;grid-template-columns:minmax(80px,38%) 1fr auto;align-items:center;gap:10px;padding:5px 0;font-size:13.5px}
+.bk{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bbar{background:#ececf0;border-radius:999px;height:7px;overflow:hidden}
+.bbar i{display:block;height:100%;background:var(--blue);border-radius:999px}
+.bv{font-variant-numeric:tabular-nums;color:var(--mute);font-size:13px}
+.banner code{background:#fff;border:1px solid #e8dcb0;border-radius:5px;padding:1px 6px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+textarea.md{min-height:440px;font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;font-size:14px;line-height:1.62;tab-size:2}
+pre.help{background:#1d1d1f;color:#f5f5f7;border-radius:12px;padding:16px 18px;overflow-x:auto;margin-top:10px;
+  font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;font-size:13px;line-height:1.7;white-space:pre}
+.grp{border:1px solid var(--line);border-radius:12px;padding:6px 16px 16px;margin:10px 0;background:#fafafa}.grp>.gt{font-weight:600;margin-top:10px;font-size:13px}
+.item{border:1px dashed var(--line);border-radius:10px;padding:4px 14px 12px;margin:8px 0;background:#fff;position:relative}
+.item .rm{position:absolute;right:8px;top:8px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}.tabs button{border:1px solid var(--line);background:#fff;padding:8px 16px;border-radius:980px;cursor:pointer}.tabs button.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.save{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 40%);padding:20px 0 6px;display:flex;gap:10px;align-items:center}
+.toast{position:fixed;right:20px;bottom:20px;background:var(--ink2);color:#fff;padding:12px 18px;border-radius:12px;opacity:0;transform:translateY(10px);transition:.3s;z-index:9}.toast.show{opacity:1;transform:none}
+.banner{background:#fff8e6;border:1px solid #f0d98a;padding:12px 16px;border-radius:12px;margin-bottom:18px}
+.login{min-height:100vh;display:grid;place-items:center;background:var(--ink)}
+.login form{background:#fff;padding:36px;border-radius:22px;width:min(380px,92vw)}.login h1{font-size:28px}.login .btn{width:100%;margin-top:18px;padding:13px}.err{color:#c0372c;margin-top:10px}
+.days{display:flex;gap:8px;flex-wrap:wrap}.days label{display:flex;align-items:center;gap:6px;margin:0;font-weight:500}.days input{width:auto}
+.imgup{display:flex;gap:14px;align-items:center}.imgup img{width:70px;height:88px;object-fit:cover;border-radius:10px}
+@media(max-width:800px){.app{grid-template-columns:1fr}aside{position:static;height:auto;flex-direction:row;flex-wrap:wrap;padding:12px}aside .logo,aside .sp,aside .by{display:none}}
+/* ---- Customer 360 ---- */
+.ph{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:22px}.ph .sub{margin:0}.phb{display:flex;gap:8px}
+.av{--h:210;width:36px;height:36px;border-radius:50%;display:inline-grid;place-items:center;flex:none;font-weight:600;font-size:13px;color:#fff;letter-spacing:.02em;background:linear-gradient(135deg,hsl(var(--h) 58% 54%),hsl(calc(var(--h) + 38) 60% 40%))}
+.av.big{width:72px;height:72px;font-size:25px}.av.sm{width:28px;height:28px;font-size:11px}
+.spill{--c:#6e6e73;display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap;color:var(--c);background:color-mix(in srgb,var(--c) 11%,#fff)}
+.spill:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c)}
+.pcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;margin-bottom:18px}
+.pcard{--c:#1d1d1f;background:#fff;border:1px solid transparent;border-radius:14px;padding:14px 16px 12px;text-align:left;cursor:pointer;font:inherit;color:inherit;position:relative;overflow:hidden;transition:border-color .15s,transform .15s}
+.pcard:hover{transform:translateY(-1px)}.pcard.on{border-color:var(--c)}
+.pcard b{display:block;font-size:26px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15}.pcard span{font-size:12.5px;color:var(--mute)}
+.pcard i{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--c);opacity:.85}
+.cgrid{display:grid;grid-template-columns:1fr 290px;gap:18px;align-items:start}.cgrid.solo{grid-template-columns:1fr}
+.ctab td{vertical-align:middle}.ctab tbody tr{cursor:pointer}.who2{display:flex;gap:12px;align-items:center;min-width:200px}.who2 a{color:#1d1d1f;text-decoration:none;font-weight:600}
+.chip{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:6px;background:#f0f0f3;color:#3a3a3c;margin:1px 3px 1px 0;white-space:nowrap}
+.late{color:#c0372c}.chip.late{background:#fdecea}
+.agenda a{display:block;padding:10px 0;border-bottom:1px solid #f0f0f2;color:inherit;text-decoration:none}.agenda a:last-child{border:0}.agenda a:hover b{color:var(--blue)}
+.agenda b{display:block;font-weight:500;font-size:14px}.agenda span{font-size:12.5px;color:var(--mute)}
+.empty{text-align:center;padding:44px 20px;color:var(--mute)}.empty b{display:block;color:#1d1d1f;font-size:17px;margin-bottom:6px}
+.back{display:inline-block;color:var(--blue);text-decoration:none;font-size:14px;margin-bottom:14px}
+.hero360{background:#fff;border-radius:20px;padding:26px 26px 22px;margin-bottom:18px}
+.hrow{display:flex;gap:20px;align-items:center;flex-wrap:wrap}.hrow .who{flex:1;min-width:220px}.hrow h1{font-size:30px;margin:0 0 2px}
+.contact{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;font-size:14px}.contact a{color:var(--blue);text-decoration:none}
+.pipe{display:flex;gap:3px;margin-top:22px;overflow-x:auto}
+.pipe button{--c:#6e6e73;flex:1;min-width:96px;border:0;padding:10px 14px;font-size:12.5px;font-weight:600;color:var(--mute);background:#f0f0f3;cursor:pointer;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%,10px 50%);transition:background .15s}
+.pipe button:first-child{clip-path:polygon(0 0,calc(100% - 10px) 0,100% 50%,calc(100% - 10px) 100%,0 100%);border-radius:10px 0 0 10px}
+.pipe button:last-child{clip-path:polygon(0 0,100% 0,100% 100%,0 100%,10px 50%);border-radius:0 10px 10px 0}
+.pipe button:hover{background:#e6e6ea}.pipe button.done{background:color-mix(in srgb,var(--c) 14%,#fff);color:var(--c)}.pipe button.cur{background:var(--c);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:#ececf0;border-radius:14px;overflow:hidden;margin-top:18px}
+.kpis div{background:#fafafc;padding:14px 16px}.kpis b{display:block;font-size:19px;font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums}.kpis span{font-size:12px;color:var(--mute)}
+.c360{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start}
+@media(max-width:1060px){.c360,.cgrid{grid-template-columns:1fr}}
+.panel h2 .cnt{font-size:13px;font-weight:500;color:var(--mute);margin-left:6px;letter-spacing:0}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}.fgrid .wide{grid-column:1/-1}
+.ico{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rel{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f2}.rel:last-of-type{border:0}.rel>div{flex:1;min-width:0}
+.rel a{color:#1d1d1f;font-weight:600;text-decoration:none}.rel a:hover{color:var(--blue)}.rel .sm b{color:#3a3a3c;font-weight:600}
+.x{border:0;background:none;color:#aeaeb2;font-size:18px;line-height:1;cursor:pointer;padding:4px 6px;border-radius:6px}.x:hover{color:#c0372c;background:#fdecea}
+.inl{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.inl>*{flex:1;min-width:120px}.inl .btn{flex:none}
+.task{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #f0f0f2}.task:last-child{border:0}
+.task input[type=checkbox]{width:18px;height:18px;accent-color:var(--blue);flex:none;cursor:pointer}.task .tt{flex:1;min-width:0}.task.done .tt b{color:var(--mute);text-decoration:line-through;font-weight:400}
+.task .tt b{font-weight:500;display:block}.pr{width:8px;height:8px;border-radius:50%;flex:none;background:#c7c7cc}.pr.high{background:#e5484d}.pr.low{background:#d1d1d6}.pr.normal{background:#0071e3}
+.due{font-size:12px;color:var(--mute)}.due.late{color:#c0372c;font-weight:600}.due.today{color:#b45309;font-weight:600}
+.seg2{display:inline-flex;background:#f0f0f3;border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg2 button{border:0;background:none;padding:6px 12px;border-radius:8px;font-size:13px;font-weight:500;color:#3a3a3c;cursor:pointer}.seg2 button.on{background:#fff;color:#1d1d1f;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.filt{display:flex;gap:6px;flex-wrap:wrap;margin:18px 0 6px}.filt button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:4px 12px;font-size:12.5px;cursor:pointer;color:#3a3a3c}.filt button.on{background:#1d1d1f;border-color:#1d1d1f;color:#fff}
+.tl{position:relative;margin-top:8px}.tl:before{content:"";position:absolute;left:15px;top:6px;bottom:6px;width:2px;background:#f0f0f2}
+.tli{position:relative;display:flex;gap:14px;padding:10px 0}.tli .tic{--c:#6e6e73;width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;color:var(--c);background:color-mix(in srgb,var(--c) 12%,#fff);box-shadow:0 0 0 4px #fff;z-index:1}
+.tli .tb{flex:1;min-width:0;padding-top:5px}.tli .th{display:flex;gap:10px;align-items:baseline;justify-content:space-between}.tli .th b{font-weight:600;font-size:14px}
+.tli .th span{font-size:12px;color:var(--mute);white-space:nowrap}.tli p{margin-top:4px;color:#3a3a3c;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.ixl{padding:10px 0;border-bottom:1px solid #f0f0f2;font-size:14px}.ixl:last-child{border:0}.ixl .sm{margin-top:2px}
+.mrow{display:flex;gap:8px;align-items:center;margin:6px 0}.mrow input[type=color]{width:42px;height:38px;padding:3px;flex:none;cursor:pointer}.mrow .grow{flex:1}.mrow select{width:auto}
+.mv{border:1px solid var(--line);background:#fff;border-radius:8px;width:32px;height:32px;cursor:pointer;color:#3a3a3c;flex:none}.mv:hover{border-color:var(--blue);color:var(--blue)}
+</style></head><body><div id="root"></div><div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s),root=$('#root');
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)};
+async function api(url,method='GET',body){const r=await fetch('/api/admin/'+url,{method,headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});
+  if(r.status===401&&url!=='login'){login();throw 0}const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Request failed');return j}
+let me=null;
+function login(msg){root.innerHTML=`<div class="login"><form id="lf"><h1>Admin sign in</h1><p class="sm">Vipin Singh website CMS</p>
+<label>Email</label><input name="email" type="email" required autocomplete="username"><label>Password</label><input name="password" type="password" required autocomplete="current-password">
+<div class="err">${esc(msg||'')}</div><button class="btn">Sign in</button></form></div>`;
+  $('#lf').onsubmit=async e=>{e.preventDefault();try{await api('login','POST',Object.fromEntries(new FormData(e.target)));boot()}catch(x){login(x.message)}}}
+async function boot(){try{me=await api('me')}catch{return}
+  root.innerHTML=`<div class="app"><aside><div class="logo">Vipin Singh<small>Site manager</small></div>
+  ${[['dash','Dashboard'],['customers','Customers'],['leads','Leads'],['appts','Appointments'],['blog','Articles'],['content','Edit website'],['settings','Settings']].map(([k,l])=>`<a data-k="${k}">${l}</a>`).join('')}
+  <div class="sp"></div><a href="/" target="_blank">View website ↗</a><a id="out">Sign out</a><div class="by">Developed by VSM Tech & AI Solutions Agency</div></aside><main id="main"></main></div>`;
+  document.querySelectorAll('aside a[data-k]').forEach(a=>a.onclick=()=>location.hash=a.dataset.k);
+  $('#out').onclick=async()=>{await api('logout','POST');login()};route()}
+addEventListener('hashchange',()=>me&&route());
+function route(){const h=location.hash.slice(1)||'dash',k=h.split('/')[0];
+  document.querySelectorAll('aside a[data-k]').forEach(a=>a.classList.toggle('on',a.dataset.k===k));
+  ({dash,customers,leads,appts,blog,content,settings}[k]||dash)(h.split('/')[1])}
+const banner=()=>me.must_change?'<div class="banner"><b>Change your default password.</b> Go to Settings → Password before sharing this site.</div>':'';
+const fmt=d=>new Date(d.replace(' ','T')+'Z').toLocaleString([], {dateStyle:'medium',timeStyle:'short'});
+
+const DAYS=()=>+(localStorage.statDays||30);
+function spark(series){ // inline SVG bar chart — no chart library, no external script
+  const w=760,h=120,n=series.length,max=Math.max(1,...series.map(d=>d.views)),bw=w/n;
+  const bars=series.map((d,i)=>{const bh=Math.round(d.views/max*(h-18));
+    return `<rect x="${(i*bw).toFixed(1)}" y="${h-bh}" width="${Math.max(1,bw-2).toFixed(1)}" height="${bh}" rx="2" fill="#0071e3"><title>${d.day}: ${d.views} views, ${d.visitors} visitors</title></rect>`}).join('');
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="Daily page views">${bars}</svg>
+    <div class="axis"><span>${series[0]?.day||''}</span><span>peak ${max}/day</span><span>${series[n-1]?.day||''}</span></div>`}
+const barRows=(rows,total)=>rows.length?rows.map(r=>`<div class="brow"><span class="bk">${esc(r.k)}</span>
+  <span class="bbar"><i style="width:${total?Math.round(r.c/total*100):0}%"></i></span>
+  <span class="bv">${r.c}${r.v!==undefined?` <small>/ ${r.v}</small>`:''}</span></div>`).join(''):'<p class="sm">Nothing yet.</p>';
+
+async function dash(){const s=await api('stats?days='+DAYS());const t=s.traffic;
+$('#main').innerHTML=`<h1>Dashboard</h1><p class="sub">Traffic, enquiries and bookings from your website.</p>${banner()}
+${s.mail.configured?'':`<div class="banner"><b>Email notifications are off.</b> Lead and booking alerts are being recorded in the email log below but not delivered. Set <code>SMTP_HOST</code>, <code>SMTP_USER</code> and <code>SMTP_PASS</code>, then restart the server.</div>`}
+<div class="panel"><div class="bar" style="justify-content:space-between;margin:0 0 6px">
+  <h2 style="margin:0">Traffic</h2>
+  <span>${[7,30,90].map(d=>`<button class="btn alt sml ${d===DAYS()?'on':''}" data-days="${d}">${d} days</button>`).join(' ')}</span></div>
+  <div class="cards" style="margin:14px 0 10px">
+    <div class="stat"><b>${t.views}</b><span>Page views · ${t.days} days</span></div>
+    <div class="stat"><b>${t.visitors}</b><span>Unique visitors</span></div>
+    <div class="stat"><b>${t.allTime}</b><span>Views all time</span></div>
+    <div class="stat"><b>${s.posts}</b><span>Published articles</span></div></div>
+  ${spark(t.series)}
+  <div class="split">
+    <div><h3 class="h3">Where they came from</h3>${barRows(t.sources,t.views)}</div>
+    <div><h3 class="h3">Most read pages</h3>${barRows(t.pages,t.views)}</div>
+  </div>
+  <p class="sm" style="margin-top:12px">Counts exclude bots. Visitors are identified by a daily-rotating hash — no cookies, nothing that can be traced back to a person.</p>
+</div>
+<div class="cards"><div class="stat"><b>${s.newLeads}</b><span>New leads</span></div><div class="stat"><b>${s.leads}</b><span>Total leads</span></div><div class="stat"><b>${s.pending}</b><span>Appointments to confirm</span></div><div class="stat"><b>${s.appts}</b><span>Total appointments</span></div></div>
+<div class="panel"><h2>Upcoming appointments</h2>${s.upcoming.length?`<div class="tw"><table><tr><th>When</th><th>Who</th><th>Topic</th><th>Status</th></tr>${s.upcoming.map(a=>`<tr><td>${esc(a.date)} · ${esc(a.time)}</td><td>${esc(a.name)}<div class="sm">${esc(a.email)}</div></td><td>${esc(a.topic)}</td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('')}</table></div>`:'<p class="sm">No upcoming appointments yet.</p>'}</div>
+<div class="panel"><h2>Latest leads</h2>${s.recent.length?`<div class="tw"><table>${s.recent.map(l=>`<tr><td>${esc(l.name)}<div class="sm">${esc(l.email)}</div></td><td class="msgc">${esc(l.message)}</td><td><span class="pill ${l.status}">${l.status}</span></td></tr>`).join('')}</table></div>`:'<p class="sm">No leads yet. They will appear here when someone uses the contact form.</p>'}</div>
+<div class="panel"><h2>Email</h2>
+  <p class="sm">${s.mail.configured?`Notifications are delivered to <b>${esc(s.mail.to||'')}</b>.`:'Not configured — notifications are logged here instead of being sent.'}</p>
+  ${s.mail.configured?'<button class="btn" id="mt" style="margin:12px 0">Send me a test email</button>':''}
+  ${s.mail.recent.length?`<div class="tw"><table><thead><tr><th>When</th><th>To</th><th>Subject</th><th>Status</th></tr></thead>
+  ${s.mail.recent.map(m=>`<tr><td class="sm">${fmt(m.created_at)}</td><td class="sm">${esc(m.to_addr)}</td><td>${esc(m.subject)}</td>
+  <td><span class="pill ${m.status==='sent'?'qualified':m.status&&m.status.startsWith('failed')?'lost':'pending'}">${esc(m.status)}</span></td></tr>`).join('')}</table></div>`
+  :'<p class="sm">No notifications yet.</p>'}</div>`;
+  document.querySelectorAll('[data-days]').forEach(b=>b.onclick=()=>{localStorage.statDays=b.dataset.days;dash()});
+  if($('#mt'))$('#mt').onclick=async()=>{try{const r=await api('mail-test','POST',{});toast('Test email sent to '+r.to);dash()}catch(e){toast(e.message);dash()}}}
+
+function listPage(title,sub,route,statuses,cols,row,empty){return async()=>{
+  const rows=await api(route);$('#main').innerHTML=`<h1>${title}</h1><p class="sub">${sub}</p>${banner()}<div class="bar"><input id="q" placeholder="Search"><a class="btn alt" href="/api/admin/${route}.csv" style="text-decoration:none">Export CSV</a></div>
+  <div class="panel tw"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th>Status</th><th></th></tr></thead><tbody id="tb"></tbody></table><p class="sm" id="em" style="padding:10px"></p></div>`;
+  const draw=()=>{const q=$('#q').value.toLowerCase(),f=rows.filter(r=>JSON.stringify(r).toLowerCase().includes(q));
+    $('#tb').innerHTML=f.map(r=>`<tr>${row(r)}<td><select class="st" data-id="${r.id}">${statuses.map(s=>`<option ${s===r.status?'selected':''}>${s}</option>`).join('')}</select></td><td><button class="btn del" data-id="${r.id}">Delete</button></td></tr>`).join('');
+    $('#em').textContent=f.length?'':empty};draw();$('#q').oninput=draw;
+  $('#tb').onchange=async e=>{if(!e.target.classList.contains('st'))return;await api(route+'/'+e.target.dataset.id,'PATCH',{status:e.target.value});toast('Status updated')};
+  $('#tb').onclick=async e=>{const b=e.target.closest('.del');if(!b||!confirm('Delete this record permanently?'))return;await api(route+'/'+b.dataset.id,'DELETE');rows.splice(rows.findIndex(r=>r.id==b.dataset.id),1);draw();toast('Deleted')}}}
+const toCust=r=>r.customer_id?`<a class="sm" href="#customers/${r.customer_id}" style="color:var(--blue);text-decoration:none">Customer 360 →</a>`:'';
+const leads=listPage('Leads','People who sent a message from the website.','leads',['new','contacted','qualified','won','lost'],['Received','Contact','Interest','Message'],
+  l=>`<td class="sm">${fmt(l.created_at)}</td><td><b>${esc(l.name)}</b><div class="sm"><a href="mailto:${esc(l.email)}">${esc(l.email)}</a>${l.phone?'<br>'+esc(l.phone):''}${l.company?'<br>'+esc(l.company):''}</div>${toCust(l)}</td><td>${esc(l.service)}</td><td class="msgc">${esc(l.message)}</td>`,'No leads yet.');
+const appts=listPage('Appointments','Booking requests. Confirm or cancel; cancelled slots become available again.','appointments',['pending','confirmed','completed','cancelled'],['When','Contact','Topic','Notes'],
+  a=>`<td><b>${esc(a.date)}</b><br>${esc(a.time)}<div class="sm">${esc(a.mode)}</div></td><td><b>${esc(a.name)}</b><div class="sm"><a href="mailto:${esc(a.email)}">${esc(a.email)}</a>${a.phone?'<br>'+esc(a.phone):''}</div>${toCust(a)}</td><td>${esc(a.topic)}</td><td class="msgc">${esc(a.message)}</td>`,'No appointments yet.');
+
+// ---- blog ----
+async function blog(id){
+  if(id!==undefined&&id!=='') return postEditor(id==='new'?null:+id);
+  const rows=await api('posts');
+  $('#main').innerHTML=`<h1>Articles</h1><p class="sub">Write once, share on LinkedIn, get found on Google.</p>${banner()}
+  <div class="bar"><button class="btn" id="new">New article</button><input id="q" placeholder="Search">
+  <a class="btn alt" href="/blog" target="_blank" style="text-decoration:none">View blog &#8599;</a>
+  <a class="btn alt" href="/rss.xml" target="_blank" style="text-decoration:none">RSS</a></div>
+  <div class="panel tw"><table><thead><tr><th>Article</th><th>Tags</th><th>Published</th><th>Status</th><th></th></tr></thead>
+  <tbody id="tb"></tbody></table><p class="sm" id="em" style="padding:10px"></p></div>`;
+  const draw=()=>{const q=$('#q').value.toLowerCase(),f=rows.filter(r=>JSON.stringify(r).toLowerCase().includes(q));
+    $('#tb').innerHTML=f.map(p=>`<tr>
+      <td><b>${esc(p.title)}</b><div class="sm">/blog/${esc(p.slug)}</div></td>
+      <td class="sm">${esc(p.tags||'—')}</td>
+      <td class="sm">${p.published_at?fmt(p.published_at):'—'}</td>
+      <td><span class="pill ${p.status==='published'?'qualified':'pending'}">${esc(p.status)}</span></td>
+      <td style="white-space:nowrap"><button class="btn alt sml" data-ed="${p.id}">Edit</button>
+      <a class="btn alt sml" href="${p.status==='published'?'/blog/'+esc(p.slug):'/admin/preview/'+p.id}" target="_blank" style="text-decoration:none">View</a>
+      <button class="btn del" data-del="${p.id}">Delete</button></td></tr>`).join('');
+    $('#em').textContent=f.length?'':'No articles yet. Click “New article” to write the first one.'};
+  draw();$('#q').oninput=draw;
+  $('#new').onclick=()=>location.hash='blog/new';
+  $('#tb').onclick=async e=>{const ed=e.target.closest('[data-ed]'),dl=e.target.closest('[data-del]');
+    if(ed)location.hash='blog/'+ed.dataset.ed;
+    if(dl&&confirm('Delete this article permanently?')){await api('posts/'+dl.dataset.del,'DELETE');toast('Deleted');blog('')}};
+}
+
+const MD_HELP=`## Heading    ### Smaller heading
+**bold**   *italic*   \`inline code\`   [link text](https://example.com)
+![image alt text](/uploads/your-image.jpg)
+- bullet list      1. numbered list      > quote      --- divider
+
+@youtube(https://youtu.be/VIDEO_ID)              embeds the video player
+@tweet(https://x.com/you/status/123)             embeds the real post from X
+@linkedin(https://linkedin.com/posts/...-7112...) embeds your LinkedIn post
+@gist(https://gist.github.com/you/abc123)        embeds the gist with its code
+@repo(https://github.com/you/project)            card linking to the repo
+@link(https://any-url.com)                       card linking to anything
+
+Each embed goes on its own line, with a blank line above and below.
+
+\`\`\`sql
+SELECT * FROM mara WHERE matnr IS NOT NULL;   -- fenced code block
+\`\`\``;
+
+async function postEditor(id){
+  const p=id?await api('posts/'+id):{id:0,title:'',slug:'',summary:'',body:'',cover:'',cover_alt:'',tags:'',status:'draft'};
+  $('#main').innerHTML=`<h1>${id?'Edit article':'New article'}</h1>
+  <p class="sub">${id?`<a href="/admin/preview/${p.id}" target="_blank">Preview &#8599;</a>`:'Saved as a draft until you publish it.'}</p>
+  <div class="panel">
+    <label>Title</label><input id="t" value="${esc(p.title)}" placeholder="What the reader sees on LinkedIn">
+    <label>URL slug <span class="sm">(leave blank to build it from the title)</span></label>
+    <input id="sl" value="${esc(p.slug)}" placeholder="sap-s4hana-data-migration-strategy">
+    <label>Summary <span class="sm">(the preview text on LinkedIn and Google &mdash; aim for 140&ndash;180 characters)</span></label>
+    <textarea id="su" style="min-height:62px">${esc(p.summary)}</textarea>
+    <label>Tags <span class="sm">(comma separated)</span></label>
+    <input id="tg" value="${esc(p.tags)}" placeholder="SAP S/4HANA, Syniti ADMM, Data Quality">
+    <label><b>Cover image</b> <span class="sm">(shown in LinkedIn/Google previews)</span></label>
+    <div class="imgup"><img id="cvimg" src="${esc(p.cover||'/img/vipin.jpg')}" alt="">
+      <div><input id="cv" value="${esc(p.cover)}" placeholder="https://... or /uploads/cover.jpg" style="margin-bottom:6px">
+      <input type="file" accept="image/jpeg,image/png,image/webp" id="cvup" style="padding:5px;display:block;width:100%"></div>
+      <div class="sm" style="margin-top:6px;color:#86868b">Best size: 1200×630px. This is what people see when they share your article on LinkedIn, Twitter, Slack, or email.</div></div>
+    <label>Image description <span class="sm">(alt text for accessibility)</span></label>
+    <input id="ca" value="${esc(p.cover_alt)}" placeholder="Describe what's in the image (e.g., 'Migration architecture diagram')">
+  </div>
+  <div class="panel">
+    <label>Body</label>
+    <textarea id="bd" class="md" spellcheck="true">${esc(p.body)}</textarea>
+    <details style="margin-top:12px"><summary class="sm" style="cursor:pointer">Formatting &amp; embeds cheat sheet</summary>
+      <pre class="help">${esc(MD_HELP)}</pre></details>
+    <div style="margin-top:12px"><input type="file" accept="image/jpeg,image/png,image/webp" id="inup" style="padding:5px">
+      <span class="sm">Upload an image to drop into the body</span></div>
+  </div>
+  <div class="save"><button class="btn" id="sv">Save draft</button>
+    <button class="btn" id="pb">${p.status==='published'?'Save &amp; keep published':'Publish'}</button>
+    ${p.status==='published'?'<button class="btn alt" id="un">Unpublish</button>':''}
+    <button class="btn alt" id="bk">Back to list</button></div>`;
+
+  const val=()=>({title:$('#t').value,slug:$('#sl').value,summary:$('#su').value,tags:$('#tg').value,
+    cover:$('#cv').value,cover_alt:$('#ca').value,body:$('#bd').value});
+  $('#cv').oninput=()=>$('#cvimg').src=$('#cv').value||'/img/vipin.jpg';
+  const upload=async(f)=>{const r=await fetch('/api/admin/upload',{method:'POST',headers:{'Content-Type':f.type},body:f});
+    const j=await r.json();if(!r.ok)throw new Error(j.error);return j.url};
+  $('#cvup').onchange=async e=>{if(!e.target.files[0])return;
+    try{const u=await upload(e.target.files[0]);$('#cv').value=u;$('#cvimg').src=u;toast('Uploaded. Save to keep it.')}catch(x){toast(x.message)}};
+  $('#inup').onchange=async e=>{if(!e.target.files[0])return;
+    try{const u=await upload(e.target.files[0]);const t=$('#bd');
+      const snip=`\n![describe the image](${u})\n`;
+      t.value=t.value.slice(0,t.selectionStart)+snip+t.value.slice(t.selectionStart);
+      toast('Image added to the body')}catch(x){toast(x.message)}};
+
+  const save=async status=>{try{
+      const body={...val(),status};
+      const r=id?await api('posts/'+id,'PUT',body):await api('posts','POST',body);
+      toast(status==='published'?'Published and live':'Draft saved');
+      if(!id)location.hash='blog/'+r.id; else postEditor(id);
+    }catch(x){toast(x.message)}};
+  $('#sv').onclick=()=>save('draft');
+  $('#pb').onclick=()=>save('published');
+  if($('#un'))$('#un').onclick=()=>save('draft');
+  $('#bk').onclick=()=>location.hash='blog';
+}
+
+// ---- generic content editor ----
+const nice=k=>k.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase()).replace(/_/g,' ');
+const isImg=(p)=>/photo|image/i.test(p);
+function field(v,path,label){
+  if(Array.isArray(v)){if(v.every(x=>typeof x==='string'))return`<label>${label} <span class="sm">(one per line)</span></label><textarea data-p="${path}" data-t="lines">${esc(v.join('\n'))}</textarea>`;
+    return`<div class="grp"><div class="gt">${label}</div>${v.map((it,i)=>`<div class="item"><button class="btn del rm" data-rm="${path}.${i}" type="button">Remove</button>${Object.entries(it).map(([k,x])=>field(x,`${path}.${i}.${k}`,nice(k))).join('')}</div>`).join('')}<button class="btn alt" type="button" data-add="${path}">+ Add item</button></div>`}
+  if(v&&typeof v==='object')return`<div class="grp"><div class="gt">${label}</div>${Object.entries(v).map(([k,x])=>field(x,`${path}.${k}`,nice(k))).join('')}</div>`;
+  if(isImg(path))return`<label>${label}</label><div class="imgup"><img src="${esc(v)}" alt=""><div><input data-p="${path}" value="${esc(v)}"><input type="file" accept="image/jpeg,image/png,image/webp" data-up="${path}" style="margin-top:6px;padding:5px"></div></div>`;
+  return String(v).length>70?`<label>${label}</label><textarea data-p="${path}">${esc(v)}</textarea>`:`<label>${label}</label><input data-p="${path}" value="${esc(v)}">`}
+function setPath(o,p,v){const k=p.split('.');let a=o;while(k.length>1)a=a[k.shift()];a[k[0]]=v}
+function getPath(o,p){return p.split('.').reduce((a,k)=>a[k],o)}
+const LABELS={brand:'Brand & contact',seo:'SEO',hero:'Hero (video chapters)',story:'Story',services:'Services',platforms:'Platforms',impact:'Results',engagements:'Engagements',process:'Process',about:'About',booking:'Booking',contact:'Contact',footer:'Footer'};
+async function content(){const D=await (await fetch('/api/content')).json();let tab=localStorage.cmsTab||'brand';
+  const render=()=>{$('#main').innerHTML=`<h1>Edit website</h1><p class="sub">Change any text, list or image. Save to publish instantly.</p>${banner()}
+  <div class="tabs">${Object.keys(LABELS).map(k=>`<button data-t="${k}" class="${k===tab?'on':''}">${LABELS[k]}</button>`).join('')}</div>
+  <div class="panel" id="ed">${field(D[tab],tab,LABELS[tab])}</div>
+  <div class="save"><button class="btn" id="sv">Save changes</button><button class="btn alt" id="rs">Restore defaults</button><a href="/" target="_blank" class="sm">Preview site ↗</a></div>`;
+    document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{tab=localStorage.cmsTab=b.dataset.t;render()});
+    const ed=$('#ed');
+    ed.oninput=e=>{const p=e.target.dataset.p;if(!p)return;setPath(D,p,e.target.dataset.t==='lines'?e.target.value.split('\n').map(s=>s.trim()).filter(Boolean):e.target.value)};
+    ed.onclick=e=>{const rm=e.target.closest('[data-rm]'),ad=e.target.closest('[data-add]');
+      if(rm){const k=rm.dataset.rm.split('.'),i=+k.pop();getPath(D,k.join('.')).splice(i,1);render()}
+      if(ad){const arr=getPath(D,ad.dataset.add),t=JSON.parse(JSON.stringify(arr[0]||{title:'',text:''}));Object.keys(t).forEach(k=>t[k]='');arr.push(t);render()}};
+    ed.onchange=async e=>{const p=e.target.dataset.up;if(!p||!e.target.files[0])return;const f=e.target.files[0];
+      try{const r=await fetch('/api/admin/upload',{method:'POST',headers:{'Content-Type':f.type},body:f}),j=await r.json();if(!r.ok)throw new Error(j.error);setPath(D,p,j.url);render();toast('Image uploaded. Save to publish.')}catch(x){toast(x.message)}};
+    $('#sv').onclick=async()=>{await api('content','PUT',D);toast('Saved and live')};
+    $('#rs').onclick=async()=>{if(!confirm('Replace ALL website text with the original defaults?'))return;await api('content/reset','POST');content()}};
+  render()}
+
+async function settings(){const s=await api('settings'),users=await api('users');const D=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  $('#main').innerHTML=`<h1>Settings</h1><p class="sub">Booking availability, your password and admin users.</p>${banner()}
+  <div class="panel"><h2>Booking availability</h2><label>Days open</label><div class="days">${D.map((d,i)=>`<label><input type="checkbox" value="${i}" ${s.days.includes(i)?'checked':''}> ${d}</label>`).join('')}</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px"><div><label>Opens</label><input id="st" type="time" value="${s.start}"></div><div><label>Closes</label><input id="en" type="time" value="${s.end}"></div><div><label>Slot length (min)</label><input id="du" type="number" min="10" step="5" value="${s.duration}"></div><div><label>Bookable days ahead</label><input id="ho" type="number" min="1" max="180" value="${s.horizon}"></div></div>
+  <button class="btn" id="ss" style="margin-top:16px">Save availability</button></div>
+  <div class="panel"><h2>Change password</h2><div style="max-width:340px"><label>Current password</label><input id="cp" type="password" autocomplete="current-password"><label>New password (8+ characters)</label><input id="np" type="password" autocomplete="new-password"><button class="btn" id="pw" style="margin-top:14px">Update password</button></div></div>
+  <div class="panel"><h2>Admin users</h2><div class="tw"><table>${users.map(u=>`<tr><td>${esc(u.email)}</td><td class="sm">${esc(u.name)}</td><td>${u.id===me.id?'<span class="sm">You</span>':`<button class="btn del" data-u="${u.id}">Remove</button>`}</td></tr>`).join('')}</table></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:10px"><div><label>Name</label><input id="un"></div><div><label>Email</label><input id="ue" type="email"></div><div><label>Password</label><input id="up" type="password"></div></div><button class="btn alt" id="au" style="margin-top:12px">Add admin</button></div>`;
+  const safe=f=>async()=>{try{await f()}catch(e){toast(e.message)}};
+  $('#ss').onclick=safe(async()=>{await api('settings','PUT',{days:[...document.querySelectorAll('.days input:checked')].map(i=>+i.value),start:$('#st').value,end:$('#en').value,duration:+$('#du').value,horizon:+$('#ho').value});toast('Availability saved')});
+  $('#pw').onclick=safe(async()=>{await api('password','POST',{current:$('#cp').value,newPassword:$('#np').value});me.must_change=0;toast('Password updated');settings()});
+  $('#au').onclick=safe(async()=>{await api('users','POST',{name:$('#un').value,email:$('#ue').value,password:$('#up').value});toast('Admin added');settings()});
+  document.querySelectorAll('[data-u]').forEach(b=>b.onclick=safe(async()=>{if(confirm('Remove this admin?')){await api('users/'+b.dataset.u,'DELETE');settings()}}))}
+
+// ---- customers (CRM). Stages, profile fields, relationship and activity types all come from crm/meta ----
+const ICONS={note:'M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4',call:'M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z',
+  email:'M3 6h18v12H3zM3 7l9 6 9-6',meeting:'M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20a6 6 0 0 1 12 0M16 11a3 3 0 1 0 0-6M22 20a6 6 0 0 0-5-5.9',
+  lead:'M4 5h16v11H9l-5 4z',appointment:'M4 6h16v14H4zM4 10h16M9 3v4M15 3v4',stage:'M5 21V4h11l-2 4 2 4H5',task:'M4 12.5l5 5L20 6.5',system:'M12 8v4l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z'};
+const TCOL={lead:'#0071e3',appointment:'#7c3aed',stage:'#b45309',task:'#15803d',system:'#6e6e73',note:'#1d1d1f',call:'#0e7490',email:'#2563eb',meeting:'#db2777'};
+const ico=k=>`<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[k]||ICONS.note}"/></svg>`;
+const hue=s=>[...String(s)].reduce((h,c)=>(h*31+c.charCodeAt(0))%360,7);
+const initials=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const avatar=(n,cls='')=>`<span class="av ${cls}" style="--h:${hue(n)}" aria-hidden="true">${esc(initials(n))}</span>`;
+const toDate=d=>new Date(String(d).length>10?String(d).replace(' ','T')+'Z':d+'T00:00:00');
+const ago=d=>{if(!d)return'—';const m=Math.round((Date.now()-toDate(d))/6e4);if(m<1)return'just now';if(m<60)return m+'m ago';const h=Math.round(m/60);if(h<24)return h+'h ago';
+  const dd=Math.round(h/24);if(dd<30)return dd+'d ago';const mo=Math.round(dd/30);return mo<12?mo+'mo ago':Math.round(mo/12)+'y ago'};
+const dayISO=(o=0)=>{const d=new Date(Date.now()+o*864e5);return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const shortDay=d=>toDate(d).toLocaleDateString([], {day:'numeric',month:'short',year:d.slice(0,4)===dayISO().slice(0,4)?undefined:'numeric'});
+const dueTag=t=>{if(!t.due)return'';const td=dayISO(),late=!t.done_at&&t.due<td,today=!t.done_at&&t.due===td;
+  return `<span class="due ${late?'late':today?'today':''}">${late?'Overdue · ':''}${today?'Due today':shortDay(t.due)}</span>`};
+const stageOf=(m,k)=>m.stages.find(s=>s.key===k)||{key:k,label:k||'—',color:'#6e6e73'};
+const stagePill=(m,k)=>{const s=stageOf(m,k);return `<span class="spill" style="--c:${esc(s.color)}">${esc(s.label)}</span>`};
+const money=(m,v)=>{try{return new Intl.NumberFormat(undefined,{style:'currency',currency:m.currency||'USD',maximumFractionDigits:0}).format(v)}catch{return String(v)}};
+const fieldText=(m,f,v)=>v===undefined||v===''?'':f.type==='currency'?money(m,v):f.type==='date'?shortDay(v):String(v);
+function fieldInput(f,v){const a=`id="f_${esc(f.key)}" data-f="${esc(f.key)}"`,val=v??'';
+  if(f.type==='select')return `<select ${a}><option value="">—</option>${f.options.map(o=>`<option ${o===val?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+  if(f.type==='textarea')return `<textarea ${a}>${esc(val)}</textarea>`;
+  return `<input ${a} type="${{number:'number',currency:'number',date:'date',url:'url'}[f.type]||'text'}" ${f.type==='currency'?'min="0" step="any"':''} value="${esc(val)}">`}
+const guard=f=>async(...x)=>{try{await f(...x)}catch(e){if(e)toast(e.message)}};
+
+async function customers(sub){
+  if(sub==='setup')return crmSetup();
+  if(sub)return customer360(+sub);
+  let stage='',q='',timer;const m=await api('crm/meta');
+  $('#main').innerHTML=`<div class="ph"><div><h1>Customers</h1><p class="sub">One record per person — every enquiry, booking, note and task in one place.</p></div>
+    <div class="phb"><a class="btn alt" href="#customers/setup" style="text-decoration:none">Setup</a><button class="btn" id="cNew">New customer</button></div></div>${banner()}
+  <form class="panel" id="newBox" hidden><h2>New customer</h2><div class="fgrid">
+    <div><label for="nName">Full name</label><input id="nName" name="name" required></div><div><label for="nEmail">Email</label><input id="nEmail" name="email" type="email"></div>
+    <div><label for="nCo">Company</label><input id="nCo" name="company"></div><div><label for="nTi">Job title</label><input id="nTi" name="title"></div>
+    <div><label for="nPh">Phone</label><input id="nPh" name="phone" type="tel"></div><div><label for="nSt">Stage</label><select id="nSt" name="stage">${m.stages.map(s=>`<option value="${esc(s.key)}">${esc(s.label)}</option>`).join('')}</select></div></div>
+    <div class="inl"><button class="btn">Create customer</button><button type="button" class="btn alt" id="nCancel">Cancel</button></div></form>
+  <div class="pcards" id="pc"></div>
+  <div class="cgrid" id="cg"><div class="panel"><div class="bar"><input id="cq" placeholder="Search name, email or company" aria-label="Search customers"></div>
+    <div class="tw"><table class="ctab"><thead><tr><th>Customer</th><th>Stage</th><th>Interactions</th><th>Tasks</th><th>Last touch</th></tr></thead><tbody id="ctb"></tbody></table></div><div id="cem"></div></div>
+    <aside class="panel" id="ag" hidden><h2>Up next</h2><div class="agenda" id="agl"></div></aside></div>`;
+  const load=guard(async()=>{
+    const d=await api(`crm/customers?q=${encodeURIComponent(q)}&stage=${encodeURIComponent(stage)}&today=${dayISO()}`);
+    $('#pc').innerHTML=[{key:'',label:'All customers',color:'#1d1d1f',n:d.total},...m.stages.map(s=>({...s,n:d.stages[s.key]||0}))].map(s=>
+      `<button class="pcard ${s.key===stage?'on':''}" data-st="${esc(s.key)}" style="--c:${esc(s.color)}"><b>${s.n}</b><span>${esc(s.label)}</span><i></i></button>`).join('');
+    $('#ctb').innerHTML=d.customers.map(c=>`<tr data-id="${c.id}">
+      <td><div class="who2">${avatar(c.name)}<div><a href="#customers/${c.id}">${esc(c.name)}</a><div class="sm">${esc([c.title,c.company].filter(Boolean).join(' · ')||c.email||'')}</div></div></div></td>
+      <td>${stagePill(m,c.stage)}</td>
+      <td>${c.enquiries?`<span class="chip">Enquiry ×${c.enquiries}</span>`:''}${c.bookings?`<span class="chip">Booking ×${c.bookings}</span>`:''}${!c.enquiries&&!c.bookings?'<span class="sm">—</span>':''}</td>
+      <td>${c.overdue?`<span class="chip late">${c.overdue} overdue</span>`:''}${c.open_tasks?`<span class="sm">${c.open_tasks} open</span>`:'<span class="sm">—</span>'}</td>
+      <td class="sm">${ago(c.last_touch||c.created_at)}</td></tr>`).join('');
+    $('#cem').innerHTML=d.customers.length?'':`<div class="empty"><b>${q||stage?'No customers match':'No customers yet'}</b>${q||stage?'Try another search or stage.':'They appear here automatically when someone sends an enquiry or books a call.'}</div>`;
+    $('#ag').hidden=!d.agenda.length;$('#cg').classList.toggle('solo',!d.agenda.length);
+    $('#agl').innerHTML=d.agenda.map(t=>`<a href="#customers/${t.customer_id}"><b>${esc(t.title)}</b><span>${esc(t.customer)}${t.due?' · ':''}</span>${dueTag(t)}</a>`).join('')});
+  $('#pc').onclick=e=>{const b=e.target.closest('[data-st]');if(!b)return;stage=b.dataset.st;load()};
+  $('#ctb').onclick=e=>{const r=e.target.closest('tr[data-id]');if(r&&!e.target.closest('a'))location.hash='customers/'+r.dataset.id};
+  $('#cq').oninput=e=>{clearTimeout(timer);timer=setTimeout(()=>{q=e.target.value.trim();load()},200)};
+  $('#cNew').onclick=()=>{$('#newBox').hidden=false;$('#nName').focus()};$('#nCancel').onclick=()=>{$('#newBox').hidden=true};
+  $('#newBox').onsubmit=guard(async e=>{e.preventDefault();const r=await api('crm/customers','POST',Object.fromEntries(new FormData(e.target)));toast('Customer created');location.hash='customers/'+r.id});
+  load()}
+
+async function customer360(id){
+  const d=await api('crm/customers/'+id),c=d.customer,m=d.meta,base='crm/customers/'+id;
+  const reload=()=>customer360(id);
+  const open=d.tasks.filter(t=>!t.done_at),idx=m.stages.findIndex(s=>s.key===c.stage);
+  const kpis=[[shortDay(c.created_at.slice(0,10)),'First contact'],[ago(c.last_touch||c.created_at),'Last touch'],[d.leads.length+d.appointments.length,'Enquiries & bookings'],
+    [open.length,'Open tasks'],...m.fields.filter(f=>f.type==='currency'&&c.fields[f.key]!==undefined).map(f=>[money(m,c.fields[f.key]),f.label])];
+  const custom=new Set(m.activityTypes.map(t=>t.key)),present=[...new Set(d.activities.map(a=>a.type))];
+  const label=t=>({lead:'Enquiries',appointment:'Bookings',stage:'Stage',task:'Tasks',system:'System'}[t]||m.activityTypes.find(x=>x.key===t)?.label||t);
+  $('#main').innerHTML=`<a class="back" href="#customers">← All customers</a>
+  <section class="hero360"><div class="hrow">${avatar(c.name,'big')}
+    <div class="who"><h1>${esc(c.name)}</h1><p class="sub" style="margin:0">${esc([c.title,c.company].filter(Boolean).join(' · ')||'Add a job title and company in the profile')}</p>
+      <div class="contact">${c.email?`<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`:''}${c.phone?`<a href="tel:${esc(c.phone)}">${esc(c.phone)}</a>`:''}<span class="sm">Source: ${esc(c.source||'—')}${c.owner?' · Owner: '+esc(c.owner):''}</span></div></div>
+    <button class="btn del" id="cDel">Delete customer</button></div>
+    <div class="pipe" role="group" aria-label="Pipeline stage">${m.stages.map((s,i)=>`<button data-stage="${esc(s.key)}" class="${i<idx?'done':i===idx?'cur':''}" style="--c:${esc(s.color)}" aria-pressed="${i===idx}">${esc(s.label)}</button>`).join('')}</div>
+    <div class="kpis">${kpis.map(([v,l])=>`<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('')}</div></section>
+  <div class="c360"><div>
+    <form class="panel" id="prof"><h2>Profile</h2><div class="fgrid">
+      ${[['name','Full name'],['email','Email','email'],['phone','Phone','tel'],['company','Company'],['title','Job title'],['owner','Owner']].map(([k,l,t])=>
+        `<div><label for="p_${k}">${l}</label><input id="p_${k}" name="${k}" type="${t||'text'}" value="${esc(c[k]||'')}"></div>`).join('')}
+      ${m.fields.map(f=>`<div class="${f.type==='textarea'||f.type==='url'?'wide':''}"><label for="f_${esc(f.key)}">${esc(f.label)}</label>${fieldInput(f,c.fields[f.key])}</div>`).join('')}</div>
+      <div class="inl"><button class="btn">Save profile</button></div></form>
+    <div class="panel"><h2>Relationships<span class="cnt">${d.relationships.length||''}</span></h2>
+      ${d.relationships.map(r=>`<div class="rel">${avatar(r.other_name,'sm')}<div><a href="#customers/${r.other_id}">${esc(r.other_name)}</a>
+        <div class="sm">${r.dir==='out'?`${esc(c.name)} · <b>${esc(r.type)}</b> · ${esc(r.other_name)}`:`${esc(r.other_name)} · <b>${esc(r.type)}</b> · ${esc(c.name)}`}${r.note?' — '+esc(r.note):''}</div></div>
+        <button class="x" data-rdel="${r.id}" aria-label="Remove relationship">×</button></div>`).join('')||'<p class="sm">Link this person to colleagues, referrers and decision makers.</p>'}
+      ${d.others.length&&m.relTypes.length?`<form class="inl" id="relf"><select name="type" aria-label="Relationship type">${m.relTypes.map(t=>`<option>${esc(t)}</option>`).join('')}</select>
+        <select name="to_id" aria-label="Related customer">${d.others.map(o=>`<option value="${o.id}">${esc(o.name)}${o.company?' — '+esc(o.company):''}</option>`).join('')}</select>
+        <button class="btn alt sml">Link</button></form>`:'<p class="sm" style="margin-top:8px">Add another customer to start building relationships.</p>'}</div>
+    <div class="panel"><h2>Enquiries & bookings<span class="cnt">${d.leads.length+d.appointments.length||''}</span></h2>
+      ${[...d.appointments.map(a=>({at:a.created_at,h:`<b>Call · ${esc(a.date)} at ${esc(a.time)}</b> <span class="pill ${esc(a.status)}">${esc(a.status)}</span><div class="sm">${esc([a.mode,a.topic].filter(Boolean).join(' · '))}</div>`,go:'appts'})),
+         ...d.leads.map(l=>({at:l.created_at,h:`<b>Enquiry${l.service?' · '+esc(l.service):''}</b> <span class="pill ${esc(l.status)}">${esc(l.status)}</span><div class="sm">${esc(fmt(l.created_at))}</div>`,go:'leads'}))]
+        .sort((a,b)=>a.at<b.at?1:-1).map(x=>`<div class="ixl">${x.h}</div>`).join('')||'<p class="sm">Nothing from the website yet.</p>'}</div>
+  </div><div>
+    <div class="panel"><h2>Tasks<span class="cnt">${open.length?open.length+' open':''}</span></h2>
+      <form class="inl" id="taskf" style="margin:0 0 6px"><input name="title" placeholder="Add a task, e.g. Send migration proposal" aria-label="Task title" style="flex:3" required>
+        <input name="due" type="date" aria-label="Due date" value="${dayISO(2)}"><select name="priority" aria-label="Priority"><option value="normal">Normal</option><option value="high">High</option><option value="low">Low</option></select><button class="btn sml">Add</button></form>
+      <div id="tl">${d.tasks.map(t=>`<div class="task ${t.done_at?'done':''}"><input type="checkbox" data-tdone="${t.id}" ${t.done_at?'checked':''} aria-label="Done: ${esc(t.title)}">
+        <span class="pr ${esc(t.priority)}" title="${esc(t.priority)} priority"></span><div class="tt"><b>${esc(t.title)}</b>${dueTag(t)}</div>
+        <button class="x" data-tdel="${t.id}" aria-label="Delete task">×</button></div>`).join('')||'<p class="sm">No tasks yet. Plan the next step above.</p>'}</div></div>
+    <div class="panel"><h2>Timeline</h2>
+      <form id="actf"><div class="seg2" role="radiogroup" aria-label="Activity type">${m.activityTypes.map((t,i)=>`<button type="button" role="radio" data-at="${esc(t.key)}" class="${i?'':'on'}" aria-checked="${!i}">${esc(t.label)}</button>`).join('')}</div>
+        <textarea name="body" placeholder="What happened? Decisions, objections, next steps…" aria-label="Activity details" style="margin-top:10px" required></textarea>
+        <div class="inl" style="justify-content:flex-end"><button class="btn sml">Log activity</button></div></form>
+      ${present.length>1?`<div class="filt" id="filt"><button class="on" data-ft="">All</button>${present.map(t=>`<button data-ft="${esc(t)}">${esc(label(t))}</button>`).join('')}</div>`:''}
+      <div class="tl" id="tlist">${d.activities.map(a=>`<div class="tli" data-type="${esc(a.type)}"><span class="tic" style="--c:${TCOL[a.type]||'#475569'}">${ico(a.type)}</span>
+        <div class="tb"><div class="th"><b>${esc(a.title||label(a.type))}</b><span title="${esc(fmt(a.created_at))}">${ago(a.created_at)}${custom.has(a.type)?` <button class="x" data-adel="${a.id}" aria-label="Delete entry">×</button>`:''}</span></div>
+        ${a.body?`<p>${esc(a.body)}</p>`:''}</div></div>`).join('')||'<p class="sm">No activity yet.</p>'}</div></div>
+  </div></div>`;
+  let atype=m.activityTypes[0]?.key;
+  document.querySelector('.pipe').onclick=guard(async e=>{const b=e.target.closest('[data-stage]');if(!b||b.dataset.stage===c.stage)return;await api(base,'PATCH',{stage:b.dataset.stage});toast('Stage updated');reload()});
+  $('#cDel').onclick=guard(async()=>{if(!confirm(`Delete ${c.name} with their tasks, notes and relationships? Their enquiries and bookings stay in Leads and Appointments.`))return;await api(base,'DELETE');toast('Customer deleted');location.hash='customers'});
+  $('#prof').onsubmit=guard(async e=>{e.preventDefault();const b=Object.fromEntries(new FormData(e.target)),fields={};
+    e.target.querySelectorAll('[data-f]').forEach(i=>{fields[i.dataset.f]=i.value});
+    await api(base,'PATCH',{name:b.name,email:b.email,phone:b.phone,company:b.company,title:b.title,owner:b.owner,fields});toast('Profile saved');reload()});
+  if($('#relf'))$('#relf').onsubmit=guard(async e=>{e.preventDefault();await api(base+'/relationships','POST',Object.fromEntries(new FormData(e.target)));toast('Relationship added');reload()});
+  $('#taskf').onsubmit=guard(async e=>{e.preventDefault();await api(base+'/tasks','POST',Object.fromEntries(new FormData(e.target)));toast('Task added');reload()});
+  $('#tl').onclick=guard(async e=>{const done=e.target.closest('[data-tdone]'),del=e.target.closest('[data-tdel]');
+    if(done){await api('crm/tasks/'+done.dataset.tdone,'PATCH',{done:done.checked});toast(done.checked?'Task completed':'Task reopened');reload()}
+    if(del&&confirm('Delete this task?')){await api('crm/tasks/'+del.dataset.tdel,'DELETE');reload()}});
+  document.querySelector('.seg2').onclick=e=>{const b=e.target.closest('[data-at]');if(!b)return;atype=b.dataset.at;
+    document.querySelectorAll('.seg2 button').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-checked',x===b)})};
+  $('#actf').onsubmit=guard(async e=>{e.preventDefault();await api(base+'/activities','POST',{type:atype,body:e.target.body.value});toast('Logged');reload()});
+  if($('#filt'))$('#filt').onclick=e=>{const b=e.target.closest('[data-ft]');if(!b)return;$('#filt').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+    document.querySelectorAll('#tlist .tli').forEach(r=>r.hidden=!!b.dataset.ft&&r.dataset.type!==b.dataset.ft)};
+  $('#tlist').onclick=guard(async e=>{const b=e.target.closest('[data-adel]');if(!b||!confirm('Delete this entry?'))return;await api('crm/activities/'+b.dataset.adel,'DELETE');reload()});
+  document.querySelectorAll('.panel .rel [data-rdel]').forEach(b=>b.onclick=guard(async()=>{await api('crm/relationships/'+b.dataset.rdel,'DELETE');toast('Relationship removed');reload()}))}
+
+// metadata editor: the CRM's structure is data, so the business can reshape it without a developer
+async function crmSetup(){
+  const m=await api('crm/meta');
+  const mv='<button type="button" class="mv" data-mv="-1" aria-label="Move up">↑</button><button type="button" class="mv" data-mv="1" aria-label="Move down">↓</button><button type="button" class="x" data-rm aria-label="Remove">×</button>';
+  const stageRow=s=>`<div class="mrow" data-key="${esc(s.key||'')}"><input type="color" value="${esc(s.color||'#0071e3')}" aria-label="Colour"><input class="grow" value="${esc(s.label||'')}" placeholder="Stage name" aria-label="Stage name">${mv}</div>`;
+  const fieldRow=f=>`<div class="mrow" data-key="${esc(f.key||'')}"><input class="grow" value="${esc(f.label||'')}" placeholder="Field label" aria-label="Field label">
+    <select aria-label="Field type">${['text','textarea','number','currency','date','url','select'].map(t=>`<option ${t===f.type?'selected':''}>${t}</option>`).join('')}</select>
+    <input class="grow opts" value="${esc((f.options||[]).join(', '))}" placeholder="Options, comma separated" aria-label="Options" ${f.type==='select'?'':'hidden'}>${mv}</div>`;
+  $('#main').innerHTML=`<a class="back" href="#customers">← All customers</a><h1>CRM setup</h1><p class="sub">The pipeline, profile fields and activity types are configuration, not code. Change them here and every customer screen follows.</p>
+  <div class="panel"><h2>Pipeline stages</h2><p class="sm">In order, left to right. Customers in a stage you remove move to the first stage.</p><div id="stg">${m.stages.map(stageRow).join('')}</div>
+    <button class="btn alt sml" id="addS" style="margin-top:8px">Add stage</button></div>
+  <div class="panel"><h2>Profile fields</h2><p class="sm">Shown on every customer profile. Currency fields also appear as headline figures.</p><div id="fld">${m.fields.map(fieldRow).join('')}</div>
+    <button class="btn alt sml" id="addF" style="margin-top:8px">Add field</button></div>
+  <div class="split" style="margin-top:0"><div class="panel"><h2>Relationship types</h2><p class="sm">One per line.</p><textarea id="rt" style="min-height:150px">${esc(m.relTypes.join('\n'))}</textarea></div>
+    <div class="panel"><h2>Activity types</h2><p class="sm">One per line — what you can log on a timeline.</p><textarea id="atx" style="min-height:150px">${esc(m.activityTypes.map(t=>t.label).join('\n'))}</textarea>
+      <label for="cur">Currency (ISO code)</label><input id="cur" value="${esc(m.currency||'USD')}" maxlength="3" style="max-width:120px;text-transform:uppercase"></div></div>
+  <div class="save"><button class="btn" id="sv">Save setup</button><span class="sm">Changes apply immediately.</span></div>`;
+  const rows=sel=>[...document.querySelectorAll(sel+' .mrow')];
+  for(const id of ['#stg','#fld'])$(id).onclick=e=>{const r=e.target.closest('.mrow');if(!r)return;
+    if(e.target.closest('[data-rm]'))r.remove();
+    const mvb=e.target.closest('[data-mv]');if(mvb){const s=mvb.dataset.mv<0?r.previousElementSibling:r.nextElementSibling;if(s)mvb.dataset.mv<0?s.before(r):s.after(r)}};
+  $('#fld').onchange=e=>{if(e.target.tagName==='SELECT')e.target.nextElementSibling.hidden=e.target.value!=='select'};
+  $('#addS').onclick=()=>{$('#stg').insertAdjacentHTML('beforeend',stageRow({}));rows('#stg').pop().querySelector('.grow').focus()};
+  $('#addF').onclick=()=>{$('#fld').insertAdjacentHTML('beforeend',fieldRow({type:'text'}));rows('#fld').pop().querySelector('.grow').focus()};
+  $('#sv').onclick=guard(async()=>{
+    const byLabel=Object.fromEntries(m.activityTypes.map(t=>[t.label.toLowerCase(),t.key]));
+    await api('crm/meta','PUT',{
+      stages:rows('#stg').map(r=>({key:r.dataset.key,color:r.querySelector('[type=color]').value,label:r.querySelector('.grow').value})),
+      fields:rows('#fld').map(r=>({key:r.dataset.key,label:r.querySelector('.grow').value,type:r.querySelector('select').value,options:r.querySelector('.opts').value.split(',').map(s=>s.trim()).filter(Boolean)})),
+      relTypes:$('#rt').value.split('\n'),
+      activityTypes:$('#atx').value.split('\n').map(s=>s.trim()).filter(Boolean).map(l=>({key:byLabel[l.toLowerCase()]||'',label:l})),
+      currency:$('#cur').value.trim().toUpperCase()});
+    toast('Setup saved');crmSetup()})}
+
+boot();
+</script></body></html>
