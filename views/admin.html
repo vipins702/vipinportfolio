@@ -632,28 +632,34 @@ async function postEditor(id){
 }
 
 // ---- generic content editor ----
-const nice=k=>k.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase()).replace(/_/g,' ');
+// Field labels the generic editor cannot guess, and the shape of a new item for lists that start empty.
+const FL={linkedin:'LinkedIn profile URL (optional)',photo:'Photo (optional, square works best)',image:'Badge image (optional)',url:'Verification link (optional)',
+  role:'Role',company:'Company',issuer:'Issuer',year:'Year',quote:'Quote'};
+const TPL={'testimonials.items':{quote:'',name:'',role:'',company:'',linkedin:'',photo:''},'certifications.items':{name:'',issuer:'',year:'',url:'',image:''}};
+const NOTES={testimonials:'Add a quote and a name and the section appears on the homepage. One quote is shown large and centred; two or more sit side by side. Short quotes (two or three sentences) read best.',
+  certifications:'Add a certification name and the strip appears on the homepage. With a verification link the badge becomes clickable; with no badge image a coloured monogram is used.'};
+const nice=k=>FL[k]||k.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase()).replace(/_/g,' ');
 const isImg=(p)=>/photo|image/i.test(p);
 function field(v,path,label){
-  if(Array.isArray(v)){if(v.every(x=>typeof x==='string'))return`<label>${label} <span class="sm">(one per line)</span></label><textarea data-p="${path}" data-t="lines">${esc(v.join('\n'))}</textarea>`;
+  if(Array.isArray(v)){if(!TPL[path]&&v.every(x=>typeof x==='string'))return`<label>${label} <span class="sm">(one per line)</span></label><textarea data-p="${path}" data-t="lines">${esc(v.join('\n'))}</textarea>`;
     return`<div class="grp"><div class="gt">${label}</div>${v.map((it,i)=>`<div class="item"><button class="btn del rm" data-rm="${path}.${i}" type="button">Remove</button>${Object.entries(it).map(([k,x])=>field(x,`${path}.${i}.${k}`,nice(k))).join('')}</div>`).join('')}<button class="btn alt" type="button" data-add="${path}">+ Add item</button></div>`}
   if(v&&typeof v==='object')return`<div class="grp"><div class="gt">${label}</div>${Object.entries(v).map(([k,x])=>field(x,`${path}.${k}`,nice(k))).join('')}</div>`;
   if(isImg(path))return`<label>${label}</label><div class="imgup"><img src="${esc(v)}" alt=""><div><input data-p="${path}" value="${esc(v)}"><input type="file" accept="image/jpeg,image/png,image/webp" data-up="${path}" style="margin-top:6px;padding:5px"></div></div>`;
   return String(v).length>70?`<label>${label}</label><textarea data-p="${path}">${esc(v)}</textarea>`:`<label>${label}</label><input data-p="${path}" value="${esc(v)}">`}
 function setPath(o,p,v){const k=p.split('.');let a=o;while(k.length>1)a=a[k.shift()];a[k[0]]=v}
 function getPath(o,p){return p.split('.').reduce((a,k)=>a[k],o)}
-const LABELS={brand:'Brand & contact',seo:'SEO',hero:'Hero (video chapters)',story:'Story',services:'Services',platforms:'Platforms',impact:'Results',engagements:'Engagements',process:'Process',about:'About',booking:'Booking',contact:'Contact',footer:'Footer'};
+const LABELS={brand:'Brand & contact',seo:'SEO',hero:'Hero (video chapters)',story:'Story',services:'Services',platforms:'Platforms',impact:'Results',engagements:'Engagements',process:'Process',testimonials:'Testimonials',certifications:'Certifications',about:'About',booking:'Booking',contact:'Contact',footer:'Footer'};
 async function content(){const D=await api('content');let tab=localStorage.cmsTab||'brand';
   const render=()=>{$('#main').innerHTML=`<h1>Edit website</h1><p class="sub">Change any text, list or image. Save to publish instantly.</p>${banner()}
   <div class="tabs">${Object.keys(LABELS).map(k=>`<button data-t="${k}" class="${k===tab?'on':''}">${LABELS[k]}</button>`).join('')}</div>
-  <div class="panel" id="ed">${field(D[tab],tab,LABELS[tab])}</div>
+  ${NOTES[tab]?`<div class="banner" style="background:color-mix(in srgb,var(--accent) 8%,var(--surface));border-color:color-mix(in srgb,var(--accent) 28%,transparent)"><div>${NOTES[tab]}</div></div>`:''}<div class="panel" id="ed">${field(D[tab]||{},tab,LABELS[tab])}</div>
   <div class="save"><button class="btn" id="sv">Save changes</button><button class="btn alt" id="rs">Restore defaults</button><a href="/" target="_blank" class="sm">Preview site ↗</a></div>`;
     document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{tab=localStorage.cmsTab=b.dataset.t;render()});
     const ed=$('#ed');
     ed.oninput=e=>{const p=e.target.dataset.p;if(!p)return;setPath(D,p,e.target.dataset.t==='lines'?e.target.value.split('\n').map(s=>s.trim()).filter(Boolean):e.target.value)};
     ed.onclick=e=>{const rm=e.target.closest('[data-rm]'),ad=e.target.closest('[data-add]');
       if(rm){const k=rm.dataset.rm.split('.'),i=+k.pop();getPath(D,k.join('.')).splice(i,1);render()}
-      if(ad){const arr=getPath(D,ad.dataset.add),t=JSON.parse(JSON.stringify(arr[0]||{title:'',text:''}));Object.keys(t).forEach(k=>t[k]='');arr.push(t);render()}};
+      if(ad){const arr=getPath(D,ad.dataset.add),t=JSON.parse(JSON.stringify(arr[0]||TPL[ad.dataset.add]||{title:'',text:''}));Object.keys(t).forEach(k=>t[k]='');arr.push(t);render()}};
     ed.onchange=async e=>{const p=e.target.dataset.up;if(!p||!e.target.files[0])return;const f=e.target.files[0];
       try{setPath(D,p,await upload(f));render();toast('Image uploaded. Save to publish.')}catch(x){toast(x.message)}};
     $('#sv').onclick=async()=>{await api('content','PUT',D);toast('Saved and live')};

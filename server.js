@@ -51,8 +51,12 @@ function boot() {
 
     // The phone number is no longer published. Drop it from content saved before that,
     // or /api/content would keep serving it.
+    // Sections added to default-content.js later are added to the stored content too.
     const content = await kvGet('content');
-    if (content?.brand && 'phone' in content.brand) { delete content.brand.phone; await kvSet('content', content); }
+    let changed = false;
+    if (content?.brand && 'phone' in content.brand) { delete content.brand.phone; changed = true; }
+    for (const [k, v] of Object.entries(require('./default-content.js'))) if (content && !(k in content)) { content[k] = v; changed = true; }
+    if (changed) await kvSet('content', content);
 
     // Starter articles, inserted once. See db/seed-posts.js.
     if (!(await kvGet('postsSeeded'))) {

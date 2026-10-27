@@ -137,6 +137,36 @@ section{position:relative;z-index:1;padding:clamp(72px,9vw,124px) 0}
 .metric>span{display:block;margin-top:12px;font-weight:500;font-size:17px}
 .metric small{display:block;margin-top:6px;color:var(--onDarkMute);font-size:13px}
 @media(max-width:820px){.metrics{grid-template-columns:1fr}}
+/* testimonials: one quote is set large and centred; two or more sit in columns */
+.voices{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.voice{position:relative;overflow:hidden;margin:0;display:flex;flex-direction:column;gap:26px;padding:34px 32px 28px;border-radius:var(--radius);
+  background:var(--card);border:1px solid var(--separator);box-shadow:var(--shadow-card)}
+.voice::before{content:"\201C";position:absolute;top:-28px;right:18px;font-family:Georgia,"Times New Roman",serif;font-size:180px;line-height:1;color:var(--h,var(--accent));opacity:.16;pointer-events:none}
+.voice blockquote{margin:0;font-size:18px;line-height:1.6;color:var(--text);text-wrap:pretty;position:relative}
+.voice figcaption{margin-top:auto;display:flex;gap:14px;align-items:center;padding-top:20px;border-top:1px solid var(--lineD)}
+.voice img,.vav{width:48px;height:48px;border-radius:50%;object-fit:cover;flex:none}
+.vav{display:grid;place-items:center;font-weight:650;font-size:16px;color:#fff;background:linear-gradient(140deg,var(--h,var(--accent)),color-mix(in srgb,var(--h,var(--accent)) 55%,#000))}
+.voice b{display:block;font-size:16px;font-weight:600}
+.voice b a{color:inherit;text-decoration:none}.voice b a:hover{color:var(--h,var(--accent-text))}
+.voice figcaption div>span{display:block;font-size:14px;color:var(--mute);margin-top:2px}
+.voices.n1{grid-template-columns:1fr;max-width:820px;margin:0 auto}
+.voices.n1 .voice{text-align:center;align-items:center;padding:48px clamp(24px,5vw,64px) 36px}
+.voices.n1 .voice::before{right:auto;left:50%;transform:translateX(-50%)}
+.voices.n1 blockquote{font-size:clamp(22px,2.4vw,28px);line-height:1.45;letter-spacing:-.012em;font-weight:500}
+.voices.n1 figcaption{border:0;padding-top:0;text-align:left}
+#testimonials .head.center,#certs .head.center{margin-bottom:44px}
+/* certifications: a compact strip of badges */
+#certs{padding:clamp(56px,7vw,96px) 0}
+.certs{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr))}
+.cert{display:flex;gap:16px;align-items:center;padding:18px 20px;border-radius:var(--radius);background:var(--card);border:1px solid var(--separator);
+  box-shadow:var(--shadow-card);text-decoration:none;color:inherit;transition:transform .2s,border-color .2s}
+a.cert:hover{transform:translateY(-2px);border-color:var(--h,var(--accent-text))}
+.cert img{width:56px;height:56px;object-fit:contain;flex:none}
+.cert .cmark{display:grid;place-items:center;width:56px;height:56px;flex:none;border-radius:16px;font-size:15px;font-weight:700;color:#fff;
+  background:linear-gradient(140deg,var(--h,var(--accent)),color-mix(in srgb,var(--h,var(--accent)) 55%,#000));box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+.cert b{display:block;font-size:15.5px;font-weight:600;line-height:1.3}
+.cert span{display:block;font-size:13.5px;color:var(--mute);margin-top:3px}
+.cert em{display:inline-block;font-style:normal;font-size:12.5px;font-weight:600;color:var(--h,var(--accent-text));margin-top:5px}
 /* platforms */
 .plat{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--lineD);border:1px solid var(--lineD);border-radius:var(--radius-xl);overflow:hidden}
 .plat div{background:var(--card);padding:24px 22px}
@@ -320,6 +350,7 @@ footer a{color:var(--accent-text)}footer a:hover{text-decoration:underline}
 <section class="dark" id="impact"><div class="wrap"><div class="head reveal"><h2 id="imH"></h2><p id="imP"></p></div><div class="metrics" id="metrics"></div></div></section>
 <section id="platforms"><div class="wrap"><div class="head reveal"><h2 id="plH"></h2><p id="plP"></p></div><div class="plat reveal" id="plat"></div></div></section>
 
+<section id="certs" hidden><div class="wrap"><div class="head center reveal"><h2 id="ceH"></h2><p id="ceP"></p></div><div class="certs reveal" id="cel"></div></div></section>
 <section id="approach"><div class="wrap">
   <div class="head reveal"><h2>The migration architecture</h2>
   <p>How I structure an S/4HANA data migration end to end — profile before you map, reconcile at every load, and keep the business in the signing seat.</p></div>
@@ -418,6 +449,7 @@ footer a{color:var(--accent-text)}footer a:hover{text-decoration:underline}
 </div></section>
 
 <section id="work"><div class="wrap"><div class="head reveal"><h2 id="enH"></h2><p id="enP"></p></div><div class="eng reveal" id="eng"></div></div></section>
+<section id="testimonials" hidden><div class="wrap"><div class="head center reveal"><h2 id="tsH"></h2><p id="tsP"></p></div><div class="voices reveal" id="tsl"></div></div></section>
 <section id="articles" hidden><div class="wrap"><div class="head reveal ahead"><div><h2>Field notes</h2><p>Notes from the work: what goes wrong in data migration, and what keeps it from going wrong.</p></div><a class="alink" href="/blog">All articles &rarr;</a></div><div class="agrid" id="agrid"></div></div></section>
 <section id="process"><div class="wrap"><div class="head reveal"><h2 id="prH"></h2><p id="prP"></p></div><div class="proc reveal" id="proc"></div></div></section>
 <section class="dark" id="about"><div class="wrap about reveal"><img id="abImg" alt="Vipin Singh"><div><h2 id="abH"></h2><p id="abP"></p><div class="stats" id="stats"></div><a class="btn" id="li" target="_blank" rel="noopener">View LinkedIn profile</a></div></div></section>
@@ -528,6 +560,21 @@ if(POSTS.length){
     <span class="ago" aria-hidden="true">&#8599;</span></a>`).join('');
   $('articles').hidden=false;
 }else{$('articles').remove()}
+// testimonials and certifications: hidden until real items are added in the CMS
+const ini=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const TS=(C.testimonials?.items||[]).filter(t=>t.quote&&t.name);
+if(TS.length){$('tsH').textContent=C.testimonials.heading||'';$('tsP').textContent=C.testimonials.intro||'';
+  $('tsl').classList.add('n'+Math.min(TS.length,3));
+  $('tsl').innerHTML=TS.map((t,i)=>`<figure class="voice" style="--h:var(${HUES[(i+3)%6]})"><blockquote>${esc(t.quote)}</blockquote>
+    <figcaption>${t.photo?`<img src="${esc(t.photo)}" alt="" loading="lazy">`:`<span class="vav" aria-hidden="true">${esc(ini(t.name))}</span>`}
+    <div><b>${t.linkedin?`<a href="${esc(t.linkedin)}" target="_blank" rel="noopener">${esc(t.name)}</a>`:esc(t.name)}</b><span>${esc([t.role,t.company].filter(Boolean).join(' · '))}</span></div></figcaption></figure>`).join('');
+  $('testimonials').hidden=false}else $('testimonials').remove();
+const CE=(C.certifications?.items||[]).filter(c=>c.name);
+if(CE.length){$('ceH').textContent=C.certifications.heading||'';$('ceP').textContent=C.certifications.intro||'';
+  $('cel').innerHTML=CE.map((c,i)=>{const tag=c.url?'a':'div',href=c.url?` href="${esc(c.url)}" target="_blank" rel="noopener"`:'';
+    return `<${tag} class="cert"${href} style="--h:var(${HUES[i%6]})">${c.image?`<img src="${esc(c.image)}" alt="" loading="lazy">`:`<span class="cmark" aria-hidden="true">${esc(platMark(c.issuer||c.name))}</span>`}
+    <div><b>${esc(c.name)}</b><span>${esc([c.issuer,c.year].filter(Boolean).join(' · '))}</span>${c.url?'<em>Verify &#8599;</em>':''}</div></${tag}>`}).join('');
+  $('certs').hidden=false}else $('certs').remove();
 $('prH').textContent=C.process.heading;$('prP').textContent=C.process.intro;
 $('proc').innerHTML=C.process.steps.map(s=>`<div><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div>`).join('');
 $('abH').textContent=C.about.heading;$('abP').textContent=C.about.text;$('abImg').src=C.about.photo;$('li').href=C.brand.linkedin;
@@ -700,7 +747,7 @@ if(!reduce){
   });
 
   // Grids: cards arrive one after another, then gain a cursor spotlight and a slight tilt.
-  [['svc','spot tilt'],['eng','spot tilt'],['metrics','spot'],['plat','spot'],['agrid',''],['proc','']].forEach(([id,cls])=>{
+  [['svc','spot tilt'],['eng','spot tilt'],['metrics','spot'],['plat','spot'],['agrid',''],['proc',''],['tsl','spot'],['cel','']].forEach(([id,cls])=>{
     const box=$(id);if(!box)return;box.classList.add('stagger');
     [...box.children].forEach((c,i)=>{c.style.setProperty('--i',i);if(cls)c.classList.add(...cls.split(' '))});
   });

@@ -67,6 +67,10 @@ module.exports = {
       { title: 'Cutover & hypercare', text: 'Dress rehearsal, sequenced go-live and support through the first period close.' }
     ]
   },
+  // Both sections stay hidden on the site until an item is filled in: a testimonial needs
+  // a quote and a name, a certification needs a name. Photo, image and links are optional.
+  testimonials: { heading: 'What colleagues and clients say', intro: 'From people Vipin has delivered programmes with.', items: [] },
+  certifications: { heading: 'Certifications', intro: 'Current credentials, each with a link to verify it.', items: [] },
   about: { heading: 'About Vipin', text: 'Vipin Singh is a data transformation lead with 14+ years in data architecture, ETL design and complex SQL. He leads offshore delivery teams on enterprise programmes, owns the migration and integration architecture, and designs the data quality and deduplication approach that decides whether a load can be signed off. His background spans SAP S/4HANA migration, Oracle and SQL Server estates, cloud reporting layers and five years of enterprise CRM delivery in banking — the combination that matters when two businesses merge, one is carved out, or a platform estate has to be consolidated. He also builds AI and RAG tooling into data work: fuzzy matching, knowledge search and automated status reporting. B.Tech, Uttar Pradesh Technical University.', photo: '/img/vipin.jpg', stats: [{ value: 'Strategy', label: 'Migration & integration architecture' }, { value: 'M&A', label: 'Consolidation & carve-out data' }, { value: 'Quality', label: 'Profiling, matching & dedupe' }, { value: 'AI', label: 'Fuzzy matching & RAG search' }] },
   booking: { heading: 'Book a discovery call', text: 'Pick a time that suits you. Vipin will confirm by email.', topics: ['Transformation & migration strategy', 'M&A, carve-out or divestiture data', 'Platform migration & integration', 'Data quality & deduplication', 'Cutover & go-live readiness', 'Something else'] },
   contact: { heading: 'Let us start with the data.', text: 'Tell Vipin about the programme and where the data risk sits. You will get a reply within one business day.' },
