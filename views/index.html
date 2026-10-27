@@ -529,7 +529,7 @@ navToggle.addEventListener('click',()=>{const open=navList.classList.toggle('ope
 navList.addEventListener('click',e=>{if(e.target.closest('a')){navList.classList.remove('open');
   navToggle.setAttribute('aria-expanded','false');navToggle.setAttribute('aria-label','Open menu')}});
 const opts=C.booking.topics.map(t=>`<option>${esc(t)}</option>`).join('');$('at').innerHTML=opts;$('ls').innerHTML=opts;
-$('contacts').innerHTML=[C.brand.email&&`<a href="mailto:${esc(C.brand.email)}">${esc(C.brand.email)}</a>`,C.brand.phone&&`<a href="tel:${esc(C.brand.phone)}">${esc(C.brand.phone)}</a>`,C.brand.location&&`<span class="hint">${esc(C.brand.location)}</span>`].filter(Boolean).join('');
+$('contacts').innerHTML=[C.brand.email&&`<a href="mailto:${esc(C.brand.email)}">${esc(C.brand.email)}</a>`,C.brand.location&&`<span class="hint">${esc(C.brand.location)}</span>`].filter(Boolean).join('');
 
 // ----- hero: scroll-scrubbed frames -----
 const N=120,imgs=[],cv=$('cv'),ctx=cv.getContext('2d'),hero=$('top'),CROP=.88; // crop bottom 12% (removes generator watermark)

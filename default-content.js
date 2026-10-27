@@ -1,7 +1,7 @@
 // Default site copy. Everything here is editable from Admin → Edit website.
 // Employers and client names are deliberately omitted — engagements are described by sector and scope only.
 module.exports = {
-  brand: { name: 'Vipin Singh', role: 'Data Transformation Strategy · Migration, M&A & Integration', linkedin: 'https://www.linkedin.com/in/vipin-s-1132182b', email: 'vipinsingh498@gmail.com', phone: '+91 95577 22795', location: 'Greater Noida, India · Working globally' },
+  brand: { name: 'Vipin Singh', role: 'Data Transformation Strategy · Migration, M&A & Integration', linkedin: 'https://www.linkedin.com/in/vipin-s-1132182b', email: 'vipinsingh498@gmail.com', location: 'Greater Noida, India · Working globally' },
   seo: { title: 'Vipin Singh — Enterprise Data Transformation, Migration & Integration Lead', description: 'Data transformation lead with 14+ years in migration strategy, ETL architecture and data quality. S/4HANA, Oracle, Snowflake and CRM integration, M&A and carve-out data consolidation, deduplication and cutover.' },
   hero: {
     chapters: [

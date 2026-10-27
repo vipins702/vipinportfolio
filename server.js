@@ -49,6 +49,21 @@ function boot() {
     if (!(await kvGet('settings'))) await kvSet('settings', { days: [1, 2, 3, 4, 5], start: '10:00', end: '18:00', duration: 30, horizon: 30 });
     if (!(await kvGet('crm'))) await kvSet('crm', CRM_DEFAULT);
 
+    // The phone number is no longer published. Drop it from content saved before that,
+    // or /api/content would keep serving it.
+    const content = await kvGet('content');
+    if (content?.brand && 'phone' in content.brand) { delete content.brand.phone; await kvSet('content', content); }
+
+    // Starter articles, inserted once. See db/seed-posts.js.
+    if (!(await kvGet('postsSeeded'))) {
+      for (const p of require('./db/seed-posts.js'))
+        await db.run(`INSERT INTO posts(slug,title,summary,body,cover,cover_alt,tags,status,published_at,
+            seo_title,seo_description,keywords,canonical_url,featured,updated_at)
+          VALUES(?,?,?,?,?,?,?,'published',CURRENT_TIMESTAMP,?,?,?,'',?,CURRENT_TIMESTAMP) ON CONFLICT (slug) DO NOTHING`,
+          [p.slug, p.title, p.summary, p.body, p.cover, p.cover_alt, p.tags, p.seo_title, p.seo_description, p.keywords, !!p.featured]);
+      await kvSet('postsSeeded', true);
+    }
+
     // The session key comes from the environment. The database copy is only a fallback
     // for setups that have not set SESSION_SECRET yet.
     if (process.env.SESSION_SECRET) SECRET = process.env.SESSION_SECRET;
@@ -610,11 +625,25 @@ app.get('/api/admin/stats', auth, A(async (req, res) => {
 
 // lets you prove delivery works without filling in the public form
 app.post('/api/admin/mail-test', auth, A(async (req, res) => {
-  if (!mailer) return res.status(400).json({ error: 'Email is not configured yet. Set SMTP_HOST, SMTP_USER and SMTP_PASS, then restart.' });
+  if (!mailer) return res.status(400).json({ error: 'Email is not configured yet. Set SMTP_HOST, SMTP_USER and SMTP_PASS, then redeploy.' });
   const to = await notifyTo();
   const ok = await sendMail({ to, subject: 'Test email from your website', text: 'If you are reading this, lead and booking notifications will reach you.' });
   ok ? res.json({ ok: true, to }) : res.status(500).json({ error: 'Send failed — see the email log below for the reason.' });
 }));
+
+// Settings → Email. Reports what is configured; the password never leaves the server.
+app.get('/api/admin/mail', auth, A(async (req, res) => res.json({
+  configured: !!mailer, host: MAIL.host || null, port: MAIL.port, from: MAIL.from || null, to: (await notifyTo()) || null,
+  recent: await db.all('SELECT id,to_addr,subject,status,created_at FROM mail_log ORDER BY id DESC LIMIT 12')
+})));
+// sidebar counts: what is waiting on you
+app.get('/api/admin/badges', auth, A(async (req, res) => {
+  const n = async sql => +(await db.one(sql)).c;
+  res.json({ leads: await n("SELECT COUNT(*) c FROM leads WHERE status='new'"), appts: await n("SELECT COUNT(*) c FROM appointments WHERE status='pending'"),
+    drafts: await n("SELECT COUNT(*) c FROM posts WHERE status<>'published'") });
+}));
+// the editor's Preview tab uses the same renderer as the public article page
+app.post('/api/admin/render', auth, A(async (req, res) => res.json({ html: renderMarkdown(String(req.body?.body || '').slice(0, 300000)) })));
 
 const table = (route, name, kind, statuses, cols, onStatus) => {
   app.get(`/api/admin/${route}`, auth, A(async (req, res) => res.json(await db.all(
