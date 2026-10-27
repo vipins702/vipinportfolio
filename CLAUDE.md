@@ -9,7 +9,7 @@ lead capture, and appointment booking. One Node process serves the public page, 
 the JSON API. There is **no build step, no bundler, no framework, and no npm script other than
 `start`** — the two HTML files are hand-written and ship as-is.
 
-Stack: Node 22.13+ · Express 4 · `node:sqlite` (built-in) · vanilla HTML/CSS/JS.
+Stack: Node 22.13+ · Express 4 · PostgreSQL on Neon (`pg`) · vanilla HTML/CSS/JS. Deployed to Vercel (`api/index.js`) or run locally with `npm start`.
 
 ## Commands
 
@@ -36,7 +36,8 @@ Endpoints after start: `http://localhost:3000` (site), `http://localhost:3000/ad
 | Variable | Default | Notes |
 |---|---|---|
 | `PORT` | `3000` | |
-| `DATA_DIR` | `./data` | Must be persistent storage in production |
+| `DATABASE_URL` | — | **Required.** Neon Postgres connection string. Set in Vercel and in a local `.env` (gitignored). |
+| `SESSION_SECRET` | (stored in DB) | Signs admin session cookies. Set it in production so it is not kept in the database. |
 | `ADMIN_EMAIL` | `admin@vsmtech.ai` | **First run only** — seeds the admin row |
 | `ADMIN_PASSWORD` | `ChangeMe@123` | First run only; if unset, `must_change=1` forces a banner |
 | `SITE_URL` | derived from request | Absolute origin for canonical/OG/sitemap URLs. **Set this in production** |
@@ -78,7 +79,7 @@ artifact; `design-system/tokens.json` is the source of record for values.
 
 ### Everything is state in SQLite, including the page copy
 
-`data/site.db` holds four tables. The important one is `kv`, a two-column JSON blob store:
+The schema is in `db/schema.sql` (Postgres, idempotent — `db.init()` runs it on every cold start). The important table is `kv`, a two-column JSON blob store:
 
 - `kv['content']` — **the entire website copy** as one JSON document (seeded from
   `default-content.js`, shape documented in README). Editing the site means `PUT`ing this whole

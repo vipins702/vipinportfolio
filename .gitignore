@@ -16,3 +16,6 @@ design-system/_backup/
 # Logs and scratch
 *.log
 .tmp.*
+
+# Local secrets (DATABASE_URL etc.) - never commit
+.env
