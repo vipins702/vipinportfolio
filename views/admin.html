@@ -112,6 +112,20 @@ pre.help{background:#1d1d1f;color:#f5f5f7;border-radius:12px;padding:16px 18px;o
 .ixl{padding:10px 0;border-bottom:1px solid #f0f0f2;font-size:14px}.ixl:last-child{border:0}.ixl .sm{margin-top:2px}
 .mrow{display:flex;gap:8px;align-items:center;margin:6px 0}.mrow input[type=color]{width:42px;height:38px;padding:3px;flex:none;cursor:pointer}.mrow .grow{flex:1}.mrow select{width:auto}
 .mv{border:1px solid var(--line);background:#fff;border-radius:8px;width:32px;height:32px;cursor:pointer;color:#3a3a3c;flex:none}.mv:hover{border-color:var(--blue);color:var(--blue)}
+/* article editor: search & sharing */
+.seo h2{font-size:19px;margin-bottom:4px}
+.seo .cnt{float:right;font-size:12px;font-weight:600;color:#86868b;font-variant-numeric:tabular-nums}.seo .cnt.ok{color:#15803d}.seo .cnt.warn{color:#b45309}
+.chk{display:flex;align-items:center;gap:10px;margin-top:16px;font-size:14px;font-weight:500;cursor:pointer}.chk input{width:auto;margin:0}
+.previews{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}@media(max-width:900px){.previews{grid-template-columns:1fr}}
+.pv{border:1px solid #e5e5ea;border-radius:14px;padding:16px;background:#fff}.pv>.k{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#86868b;margin-bottom:10px}
+.serp .u{font-size:12px;color:#202124;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.serp .t{font-size:19px;line-height:1.3;color:#1a0dab;margin:4px 0}.serp .d{font-size:13px;line-height:1.5;color:#4d5156}
+.og{padding:0;overflow:hidden}.og>.k{padding:16px 16px 0}.og img{width:100%;aspect-ratio:1.91/1;object-fit:cover;background:#f2f2f7;display:block;margin-top:10px}
+.og .b{padding:10px 14px 14px;border-top:1px solid #e5e5ea}.og .t{font-size:15px;font-weight:600;line-height:1.3;color:#1d1d1f}.og .u{font-size:12px;color:#86868b;margin-top:4px}
+.checks{list-style:none;margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;font-size:13px}@media(max-width:900px){.checks{grid-template-columns:1fr}}
+.checks li{display:flex;gap:8px;align-items:flex-start}.checks li::before{content:"";flex:none;width:8px;height:8px;margin-top:6px;border-radius:50%;background:#d1d1d6}
+.checks li.ok::before{background:#15803d}.checks li.warn::before{background:#b45309}
+.score{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;background:#f2f2f7;color:#1d1d1f}
+.wc{float:right;font-size:12px;color:#86868b;font-weight:500;font-variant-numeric:tabular-nums}
 </style></head><body><div id="root"></div><div class="toast" id="toast"></div>
 <script>
 const $=s=>document.querySelector(s),root=$('#root');
@@ -208,7 +222,7 @@ async function blog(id){
       <td><b>${esc(p.title)}</b><div class="sm">/blog/${esc(p.slug)}</div></td>
       <td class="sm">${esc(p.tags||'—')}</td>
       <td class="sm">${p.published_at?fmt(p.published_at):'—'}</td>
-      <td><span class="pill ${p.status==='published'?'qualified':'pending'}">${esc(p.status)}</span></td>
+      <td><span class="pill ${p.status==='published'?'qualified':'pending'}">${esc(p.status)}</span>${p.featured?' <span class="pill new">featured</span>':''}</td>
       <td style="white-space:nowrap"><button class="btn alt sml" data-ed="${p.id}">Edit</button>
       <a class="btn alt sml" href="${p.status==='published'?'/blog/'+esc(p.slug):'/admin/preview/'+p.id}" target="_blank" style="text-decoration:none">View</a>
       <button class="btn del" data-del="${p.id}">Delete</button></td></tr>`).join('');
@@ -239,7 +253,8 @@ SELECT * FROM mara WHERE matnr IS NOT NULL;   -- fenced code block
 \`\`\``;
 
 async function postEditor(id){
-  const p=id?await api('posts/'+id):{id:0,title:'',slug:'',summary:'',body:'',cover:'',cover_alt:'',tags:'',status:'draft'};
+  const p=id?await api('posts/'+id):{id:0,title:'',slug:'',summary:'',body:'',cover:'',cover_alt:'',tags:'',status:'draft',
+    seo_title:'',seo_description:'',keywords:'',canonical_url:'',featured:false};
   $('#main').innerHTML=`<h1>${id?'Edit article':'New article'}</h1>
   <p class="sub">${id?`<a href="/admin/preview/${p.id}" target="_blank">Preview &#8599;</a>`:'Saved as a draft until you publish it.'}</p>
   <div class="panel">
@@ -254,17 +269,35 @@ async function postEditor(id){
     <div class="imgup"><img id="cvimg" src="${esc(p.cover||'/img/vipin.jpg')}" alt="">
       <div><input id="cv" value="${esc(p.cover)}" placeholder="https://... or /uploads/cover.jpg" style="margin-bottom:6px">
       <input type="file" accept="image/jpeg,image/png,image/webp" id="cvup" style="padding:5px;display:block;width:100%"></div>
-      <div class="sm" style="margin-top:6px;color:#86868b">Best size: 1200×630px. This is what people see when they share your article on LinkedIn, Twitter, Slack, or email.</div></div>
+      <div class="sm" style="margin-top:6px;color:#86868b">Best size: 1600×1000px with the subject in the middle. The site crops it square on article cards and wide on LinkedIn and in the article, so keep the edges free of anything important.</div></div>
     <label>Image description <span class="sm">(alt text for accessibility)</span></label>
     <input id="ca" value="${esc(p.cover_alt)}" placeholder="Describe what's in the image (e.g., 'Migration architecture diagram')">
   </div>
   <div class="panel">
-    <label>Body</label>
+    <label>Body <span class="wc" id="wc"></span></label>
     <textarea id="bd" class="md" spellcheck="true">${esc(p.body)}</textarea>
     <details style="margin-top:12px"><summary class="sm" style="cursor:pointer">Formatting &amp; embeds cheat sheet</summary>
       <pre class="help">${esc(MD_HELP)}</pre></details>
     <div style="margin-top:12px"><input type="file" accept="image/jpeg,image/png,image/webp" id="inup" style="padding:5px">
       <span class="sm">Upload an image to drop into the body</span></div>
+  </div>
+  <div class="panel seo">
+    <h2>Search &amp; sharing <span class="score" id="sc"></span></h2>
+    <p class="sm">How this article appears on Google and when it is shared. Anything left blank falls back to the title and summary above.</p>
+    <label>SEO title <span class="cnt" id="stc"></span></label>
+    <input id="st" value="${esc(p.seo_title||'')}" placeholder="Defaults to: ${esc(p.title||'the article title')} — your name">
+    <label>Meta description <span class="cnt" id="sdc"></span></label>
+    <textarea id="sd" style="min-height:62px" placeholder="Defaults to the summary">${esc(p.seo_description||'')}</textarea>
+    <label>Keywords <span class="sm">(comma separated: the searches this article should be found for. The first one is the focus keyword)</span></label>
+    <input id="kw" value="${esc(p.keywords||'')}" placeholder="SAP data migration, S/4HANA cutover, data reconciliation">
+    <label>Canonical URL <span class="sm">(only if this article was first published elsewhere, such as LinkedIn)</span></label>
+    <input id="cu" value="${esc(p.canonical_url||'')}" placeholder="https://www.linkedin.com/pulse/...">
+    <label class="chk"><input type="checkbox" id="ft" ${p.featured?'checked':''}> Feature this article: it leads the homepage and the articles page</label>
+    <div class="previews">
+      <div class="pv serp"><div class="k">Google</div><div class="u" id="pu"></div><div class="t" id="pt"></div><div class="d" id="pd"></div></div>
+      <div class="pv og"><div class="k">LinkedIn &amp; social</div><img id="pi" alt=""><div class="b"><div class="t" id="ot"></div><div class="u" id="ou"></div></div></div>
+    </div>
+    <ul class="checks" id="ck"></ul>
   </div>
   <div class="save"><button class="btn" id="sv">Save draft</button>
     <button class="btn" id="pb">${p.status==='published'?'Save &amp; keep published':'Publish'}</button>
@@ -272,12 +305,45 @@ async function postEditor(id){
     <button class="btn alt" id="bk">Back to list</button></div>`;
 
   const val=()=>({title:$('#t').value,slug:$('#sl').value,summary:$('#su').value,tags:$('#tg').value,
-    cover:$('#cv').value,cover_alt:$('#ca').value,body:$('#bd').value});
-  $('#cv').oninput=()=>$('#cvimg').src=$('#cv').value||'/img/vipin.jpg';
+    cover:$('#cv').value,cover_alt:$('#ca').value,body:$('#bd').value,
+    seo_title:$('#st').value,seo_description:$('#sd').value,keywords:$('#kw').value,canonical_url:$('#cu').value,featured:$('#ft').checked});
+
+  // Live search & sharing preview, counters and checklist. The fallbacks mirror postPage() in server.js.
+  const slugify=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80);
+  const plain=s=>String(s||'').replace(/```[\s\S]*?```/g,' ').replace(/@\w+\([^)]*\)/g,' ').replace(/[#>*`_]|\[|\]|\(https?:[^)]*\)/g,' ').replace(/\s+/g,' ').trim();
+  const cut=(s,n)=>s.length>n?s.slice(0,n-1).trimEnd()+'…':s;
+  const count=(el,n,lo,hi)=>{el.textContent=n+' / '+hi;el.className='cnt '+(n===0?'':n>=lo&&n<=hi?'ok':'warn')};
+  const refresh=()=>{const v=val(),words=plain(v.body).split(' ').filter(Boolean).length;
+    $('#wc').textContent=words+' words · '+Math.max(1,Math.round(words/200))+' min read';
+    const title=v.seo_title||((v.title||'Untitled')+' — Vipin Singh'),desc=v.seo_description||v.summary||plain(v.body).slice(0,180);
+    const slug=slugify(v.slug||v.title)||'post',host=location.host;
+    count($('#stc'),v.seo_title.length,30,60);count($('#sdc'),v.seo_description.length,120,160);
+    $('#pu').textContent=host+' › blog › '+slug;$('#pt').textContent=cut(title,60);$('#pd').textContent=cut(desc,160)||'Add a summary or meta description.';
+    $('#pi').src=v.cover||'/img/vipin.jpg';$('#ot').textContent=v.title||'Untitled';$('#ou').textContent=host.toUpperCase();
+    const kw=(v.keywords.split(',')[0]||'').trim().toLowerCase(),has=s=>kw&&String(s).toLowerCase().includes(kw);
+    const checks=[
+      [title.length>=30&&title.length<=60,'Search title is 30–60 characters ('+title.length+')'],
+      [desc.length>=120&&desc.length<=160,'Description is 120–160 characters ('+desc.length+')'],
+      [!!kw,'A focus keyword is set'],
+      [has(title),'Focus keyword appears in the title'],
+      [has(desc),'Focus keyword appears in the description'],
+      [has(plain(v.body).slice(0,600)),'Focus keyword appears in the opening'],
+      [!!v.cover,'Cover image is set'],
+      [!v.cover||!!v.cover_alt.trim(),'Cover image has a description'],
+      [words>=600,'At least 600 words ('+words+')'],
+      [/^##\s/m.test(v.body),'Uses section headings (##), which build the contents list'],
+    ];
+    const ok=checks.filter(c=>c[0]).length;
+    $('#ck').innerHTML=checks.map(([pass,t])=>`<li class="${pass?'ok':'warn'}">${esc(t)}</li>`).join('');
+    $('#sc').textContent=ok+' / '+checks.length;
+  };
+  ['#t','#sl','#su','#tg','#cv','#ca','#bd','#st','#sd','#kw','#cu'].forEach(s=>$(s).addEventListener('input',refresh));
+  refresh();
+  $('#cv').oninput=()=>{$('#cvimg').src=$('#cv').value||'/img/vipin.jpg';refresh()};
   const upload=async(f)=>{const r=await fetch('/api/admin/upload',{method:'POST',headers:{'Content-Type':f.type},body:f});
     const j=await r.json();if(!r.ok)throw new Error(j.error);return j.url};
   $('#cvup').onchange=async e=>{if(!e.target.files[0])return;
-    try{const u=await upload(e.target.files[0]);$('#cv').value=u;$('#cvimg').src=u;toast('Uploaded. Save to keep it.')}catch(x){toast(x.message)}};
+    try{const u=await upload(e.target.files[0]);$('#cv').value=u;$('#cvimg').src=u;refresh();toast('Uploaded. Save to keep it.')}catch(x){toast(x.message)}};
   $('#inup').onchange=async e=>{if(!e.target.files[0])return;
     try{const u=await upload(e.target.files[0]);const t=$('#bd');
       const snip=`\n![describe the image](${u})\n`;

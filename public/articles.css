@@ -1,0 +1,50 @@
+/* Article cards: square and cover-led. Shared by the homepage (rendered from /api/posts)
+   and /blog (rendered by server.js), which emit the same markup. Tokens come from tokens.css. */
+.agrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:960px){.agrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.agrid{grid-template-columns:1fr}}
+
+.acard{position:relative;display:block;aspect-ratio:1/1;border-radius:var(--radius-xl);overflow:hidden;isolation:isolate;
+  background:var(--ink-800);color:var(--on-ink);text-decoration:none;
+  box-shadow:inset 0 0 0 1px var(--separator-on-ink),0 10px 30px -18px rgba(0,0,0,.6);
+  transition:transform .55s cubic-bezier(.2,.7,.2,1),box-shadow .55s cubic-bezier(.2,.7,.2,1)}
+.acard:hover{transform:translateY(-5px);box-shadow:inset 0 0 0 1px var(--separator-on-ink),0 34px 60px -24px rgba(0,0,0,.6)}
+.acard:focus-visible{outline:3px solid var(--focus-ring);outline-offset:4px}
+
+/* The cover fills the square and drifts closer on hover. */
+.acover{position:absolute;inset:0;z-index:-2;margin:0}
+.acover img{width:100%;height:100%;object-fit:cover;transform:scale(1.02);transition:transform 1.4s cubic-bezier(.2,.7,.2,1)}
+.acard:hover .acover img{transform:scale(1.08)}
+/* The scrim, not the photograph, is what guarantees the title's contrast. */
+.acard::after{content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(7,7,11,0) 22%,rgba(7,7,11,.62) 52%,var(--scrim) 100%)}
+
+.ainfo{position:absolute;left:0;right:0;bottom:0;padding:clamp(20px,2.3vw,28px);display:flex;flex-direction:column;gap:10px}
+.atag{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-on-ink)}
+.acard h3{font-size:clamp(20px,1.8vw,24px);line-height:1.18;letter-spacing:-.02em;font-weight:600;color:var(--on-ink);
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.asum{font-size:16px;line-height:1.5;color:var(--on-ink-secondary);max-width:34em;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ameta{font-size:13px;color:var(--on-ink-secondary);font-variant-numeric:tabular-nums}
+
+/* A glass arrow that slides in on hover, so the whole square reads as one link. */
+.ago{position:absolute;top:18px;right:18px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  color:var(--on-ink);font-size:17px;opacity:0;transform:translate(-8px,8px);
+  transition:opacity .35s,transform .5s cubic-bezier(.2,.7,.2,1)}
+.acard:hover .ago,.acard:focus-visible .ago{opacity:1;transform:none}
+
+/* No cover: a typographic cover built from the system, never an empty grey box. */
+.afallback{background:var(--ink-900);overflow:hidden}
+.afallback::before{content:"";position:absolute;width:75%;height:75%;top:-25%;right:-20%;border-radius:50%;
+  background:var(--accent);filter:blur(70px);opacity:.5}
+.afallback::after{content:"";position:absolute;width:55%;height:55%;bottom:10%;left:-20%;border-radius:50%;
+  background:var(--hue-verify-on-ink);filter:blur(80px);opacity:.22}
+.afallback .spectrum{position:absolute;top:26px;left:26px;z-index:1}
+
+/* The lead card spans two columns and two rows, so it stays square. */
+.agrid .lead{grid-column:span 2;grid-row:span 2}
+.agrid .lead h3{font-size:clamp(26px,3vw,40px);line-height:1.08;letter-spacing:-.028em;-webkit-line-clamp:4}
+@media(max-width:600px){.agrid .lead{grid-column:auto;grid-row:auto}.agrid .lead .asum{display:none}}
+
+@media(prefers-reduced-motion:reduce){.acard,.acover img,.ago{transition:none}.acard:hover{transform:none}.acard:hover .acover img{transform:scale(1.02)}}

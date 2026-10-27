@@ -82,6 +82,14 @@ CREATE TABLE IF NOT EXISTS posts (
 
 CREATE INDEX IF NOT EXISTS ix_posts_pub ON posts (status, published_at DESC);
 
+-- Search and sharing fields, added after the first release. ADD COLUMN IF NOT EXISTS
+-- keeps this safe to run on a database that already has the posts table.
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS seo_title       TEXT;
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS seo_description TEXT;
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS keywords        TEXT;
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS canonical_url   TEXT;
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS featured        BOOLEAN NOT NULL DEFAULT FALSE;
+
 -- Simple page-view analytics
 CREATE TABLE IF NOT EXISTS pageviews (
   id         BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

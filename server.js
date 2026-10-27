@@ -658,16 +658,21 @@ table('appointments', 'appointments', 'appointment', ['pending', 'confirmed', 'c
 
 // ---------- blog admin ----------
 app.get('/api/admin/posts', auth, A(async (req, res) =>
-  res.json(await db.all('SELECT id,slug,title,summary,status,published_at,updated_at,created_at,tags,cover FROM posts ORDER BY COALESCE(published_at,created_at) DESC'))));
+  res.json(await db.all('SELECT id,slug,title,summary,status,published_at,updated_at,created_at,tags,cover,featured FROM posts ORDER BY COALESCE(published_at,created_at) DESC'))));
 app.get('/api/admin/posts/:id', auth, A(async (req, res) => {
   const p = await db.one('SELECT * FROM posts WHERE id=?', [+req.params.id]);
   return p ? res.json(p) : res.status(404).json({ error: 'That post no longer exists.' });
 }));
 function postFields(b) {
+  const canonical = clean(b.canonical_url, 400);
   return {
     title: clean(b.title, 180), summary: clean(b.summary, 400), body: clean(b.body, 120000),
     cover: clean(b.cover, 400), cover_alt: clean(b.cover_alt, 200), tags: clean(b.tags, 200),
-    status: b.status === 'published' ? 'published' : 'draft'
+    status: b.status === 'published' ? 'published' : 'draft',
+    // search and sharing: each falls back to title / summary / the post's own URL when blank
+    seo_title: clean(b.seo_title, 90), seo_description: clean(b.seo_description, 300), keywords: clean(b.keywords, 300),
+    canonical_url: /^https?:\/\//i.test(canonical) ? canonical : '',
+    featured: !!b.featured
   };
 }
 // slugs must stay unique: the URL is what LinkedIn and Google index
@@ -682,9 +687,11 @@ app.post('/api/admin/posts', auth, A(async (req, res) => {
   const f = postFields(req.body || {});
   if (!f.title) return res.status(400).json({ error: 'Give the post a title.' });
   const slug = await uniqueSlug(clean(req.body.slug, 180) || f.title);
-  const { rows } = await db.run(`INSERT INTO posts(slug,title,summary,body,cover,cover_alt,tags,status,published_at,updated_at)
-    VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP) RETURNING id`,
-    [slug, f.title, f.summary, f.body, f.cover, f.cover_alt, f.tags, f.status, f.status === 'published' ? nowStamp() : null]);
+  const { rows } = await db.run(`INSERT INTO posts(slug,title,summary,body,cover,cover_alt,tags,status,published_at,
+      seo_title,seo_description,keywords,canonical_url,featured,updated_at)
+    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP) RETURNING id`,
+    [slug, f.title, f.summary, f.body, f.cover, f.cover_alt, f.tags, f.status, f.status === 'published' ? nowStamp() : null,
+      f.seo_title, f.seo_description, f.keywords, f.canonical_url, f.featured]);
   res.json({ ok: true, id: rows[0].id, slug });
 }));
 app.put('/api/admin/posts/:id', auth, A(async (req, res) => {
@@ -695,8 +702,10 @@ app.put('/api/admin/posts/:id', auth, A(async (req, res) => {
   const slug = await uniqueSlug(clean(req.body.slug, 180) || f.title, id);
   // first publish stamps the date; later edits keep the original so permalinks stay stable
   const published_at = f.status === 'published' ? (cur.published_at || nowStamp()) : null;
-  await db.run(`UPDATE posts SET slug=?,title=?,summary=?,body=?,cover=?,cover_alt=?,tags=?,status=?,published_at=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`,
-    [slug, f.title, f.summary, f.body, f.cover, f.cover_alt, f.tags, f.status, published_at, id]);
+  await db.run(`UPDATE posts SET slug=?,title=?,summary=?,body=?,cover=?,cover_alt=?,tags=?,status=?,published_at=?,
+      seo_title=?,seo_description=?,keywords=?,canonical_url=?,featured=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`,
+    [slug, f.title, f.summary, f.body, f.cover, f.cover_alt, f.tags, f.status, published_at,
+      f.seo_title, f.seo_description, f.keywords, f.canonical_url, f.featured, id]);
   res.json({ ok: true, slug });
 }));
 app.delete('/api/admin/posts/:id', auth, A(async (req, res) => { await db.run('DELETE FROM posts WHERE id=?', [+req.params.id]); res.json({ ok: true }); }));
@@ -769,7 +778,7 @@ app.get('/', A(async (req, res) => {
   track(req, '/');
   res.type('html').send(view('index.html')
     .replaceAll('{{TITLE}}', esc(c.seo.title)).replaceAll('{{DESC}}', esc(c.seo.description))
-    .replaceAll('{{V}}', assetV('tokens.css')));
+    .replaceAll('{{V}}', assetV('tokens.css')).replaceAll('{{AV}}', assetV('articles.css')));
 }));
 // ---------- blog (server-rendered: LinkedIn and Google crawlers do not run JS) ----------
 // Embed loaders are only emitted for posts that actually use them — a post with no
@@ -790,7 +799,7 @@ addEventListener('message',function(e){ if(e.data&&e.data.gist){ document.queryS
   return s;
 }
 
-async function shell({ req, title, desc, canonical, image, type = 'website', jsonLd, body, scripts = '' }) {
+async function shell({ req, title, desc, canonical, image, type = 'website', jsonLd, body, scripts = '', head = '' }) {
   const c = await kvGet('content'), o = origin(req);
   const img = image ? (/^https?:/.test(image) ? image : o + image) : o + '/img/vipin.jpg';
   return `<!DOCTYPE html>
@@ -808,7 +817,9 @@ async function shell({ req, title, desc, canonical, image, type = 'website', jso
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/tokens.css?v=${assetV('tokens.css')}">
 <link rel="stylesheet" href="/blog.css?v=${assetV('blog.css')}">
-${jsonLd ? `<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, '\\u003c')}</script>` : ''}
+<link rel="stylesheet" href="/articles.css?v=${assetV('articles.css')}">
+${head}
+${jsonLd ?`<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, '\\u003c')}</script>` : ''}
 </head><body>
 <nav class="bnav"><a class="brand" href="/"><span>${esc(c.brand.name)}</span><span class="spectrum" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span></a>
 <ul><li><a href="/#services">Services</a></li><li><a href="/#work">Engagements</a></li><li><a href="/blog">Articles</a></li><li><a href="/#book" class="btn">Book a call</a></li></ul></nav>
@@ -820,18 +831,37 @@ ${scripts}
 }
 
 const pubPosts = () => db.all("SELECT * FROM posts WHERE status='published' ORDER BY published_at DESC");
+// Listing order: featured articles first, then newest.
+const listPosts = (limit = 100, exceptId = 0) => db.all(
+  "SELECT * FROM posts WHERE status='published' AND id<>? ORDER BY featured DESC, published_at DESC LIMIT ?", [exceptId, limit]);
+const tagsOf = p => String(p.tags || '').split(',').map(t => t.trim()).filter(Boolean);
+
+// What an article card needs, and nothing else: the body never leaves the server for a listing.
+const cardData = p => ({
+  slug: p.slug, title: p.title, summary: p.summary || stripMd(p.body).slice(0, 160),
+  cover: p.cover || '', tag: tagsOf(p)[0] || '', date: niceDate(p.published_at), mins: readMins(p.body)
+});
+// Square, cover-led card. views/index.html renders the same markup from /api/posts.
+// The cover's alt is empty on purpose: the whole card is a link whose text is the title.
+const acardHtml = (d, lead = false) => `<a class="acard${lead ? ' lead' : ''}" href="/blog/${esc(d.slug)}">
+  ${d.cover ? `<figure class="acover"><img src="${esc(d.cover)}" alt="" loading="lazy" decoding="async"></figure>`
+    : `<div class="acover afallback"><span class="spectrum" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>`}
+  <div class="ainfo">${d.tag ? `<span class="atag">${esc(d.tag)}</span>` : ''}<h3>${esc(d.title)}</h3>
+    ${lead && d.summary ? `<p class="asum">${esc(d.summary)}</p>` : ''}
+    <span class="ameta">${esc(d.date)} · ${d.mins} min read</span></div>
+  <span class="ago" aria-hidden="true">&#8599;</span></a>`;
+
+app.get('/api/posts', A(async (req, res) => {
+  const rows = await listPosts(Math.min(12, Math.max(1, +req.query.limit || 3)));
+  res.set('Cache-Control', 'public, max-age=60');
+  res.json(rows.map(cardData));
+}));
 
 app.get('/blog', A(async (req, res) => {
   track(req, '/blog');
-  const c = await kvGet('content'), o = origin(req), posts = await pubPosts();
-  const cards = posts.length ? posts.map(p => `<article class="pcard">
-    ${p.cover ? `<a href="/blog/${esc(p.slug)}" class="pcover"><img src="${esc(p.cover)}" alt="${esc(p.cover_alt || '')}" loading="lazy"></a>` : ''}
-    <div class="pbody">
-      ${p.tags ? `<div class="ptags">${p.tags.split(',').map(t => t.trim()).filter(Boolean).map(t => `<span>${esc(t)}</span>`).join('')}</div>` : ''}
-      <h2><a href="/blog/${esc(p.slug)}">${esc(p.title)}</a></h2>
-      <p>${esc(p.summary || stripMd(p.body).slice(0, 180))}</p>
-      <div class="pmeta">${esc(niceDate(p.published_at))} · ${readMins(p.body)} min read</div>
-    </div></article>`).join('')
+  const c = await kvGet('content'), o = origin(req), posts = await listPosts();
+  const grid = posts.length
+    ? `<div class="agrid">${posts.map((p, i) => acardHtml(cardData(p), i === 0 && posts.length >= 3)).join('')}</div>`
     : `<p class="empty">No articles published yet. Sign in to <a href="/admin#blog">the CMS</a> to write the first one.</p>`;
   res.type('html').send(await shell({
     req, title: `Articles — ${c.brand.name}`,
@@ -839,57 +869,116 @@ app.get('/blog', A(async (req, res) => {
     canonical: `${o}/blog`, type: 'website',
     jsonLd: { '@context': 'https://schema.org', '@type': 'Blog', name: `${c.brand.name} — Articles`, url: `${o}/blog`,
       author: { '@type': 'Person', name: c.brand.name, jobTitle: c.brand.role, url: o } },
-    body: `<header class="phead"><h1>Articles</h1><p>Field notes on SAP data migration, Syniti ADMM, data quality and cutover.</p></header><div class="plist">${cards}</div>`
+    body: `<header class="phead"><span class="eyebrow">Field notes</span><h1>Articles</h1>
+      <p>Field notes on SAP data migration, Syniti ADMM, data quality and cutover.</p>
+      <span class="pcount">${posts.length} article${posts.length === 1 ? '' : 's'}</span></header>${grid}<div class="pad"></div>`
   }));
 }));
+
+// Headings for the contents list, read from the markdown (skipping code blocks) with the
+// same ids renderMarkdown gives them.
+function tocOf(md) {
+  const out = []; let fence = false;
+  for (const L of String(md || '').split(/\r?\n/)) {
+    if (/^```/.test(L)) { fence = !fence; continue; }
+    if (fence) continue;
+    const m = L.match(/^(#{1,3})\s+(.*)$/);
+    if (m) out.push({ sub: m[1].length === 3, text: stripMd(m[2]), id: slugify(m[2]) });
+  }
+  return out;
+}
+
+// One renderer for the public page and the admin preview, so a draft looks exactly as it will publish.
+async function postPage(req, p, { preview = false } = {}) {
+  const c = await kvGet('content'), o = origin(req), url = `${o}/blog/${p.slug}`;
+  const title = p.seo_title || `${p.title} — ${c.brand.name}`;
+  const desc = p.seo_description || p.summary || stripMd(p.body).slice(0, 180);
+  const canonical = p.canonical_url || url;
+  const tags = tagsOf(p), keywords = p.keywords || tags.join(', ');
+  const prose = renderMarkdown(p.body), mins = readMins(p.body), toc = tocOf(p.body);
+  const words = stripMd(p.body).split(' ').filter(Boolean).length;
+  const photo = c.about?.photo || '/img/vipin.jpg';
+  const more = preview ? [] : await listPosts(3, p.id);
+  const enc = encodeURIComponent(url), encT = encodeURIComponent(p.title);
+  const coverUrl = p.cover ? (/^https?:/.test(p.cover) ? p.cover : o + p.cover) : undefined;
+  return shell({
+    req, title: preview ? `[${p.status}] ${title}` : title, desc, canonical, image: p.cover, type: 'article',
+    head: [
+      keywords && `<meta name="keywords" content="${esc(keywords)}">`,
+      p.published_at && `<meta property="article:published_time" content="${isoDate(p.published_at)}">`,
+      p.updated_at && `<meta property="article:modified_time" content="${isoDate(p.updated_at)}">`,
+      ...tags.map(t => `<meta property="article:tag" content="${esc(t)}">`),
+      preview && '<meta name="robots" content="noindex">'
+    ].filter(Boolean).join('\n'),
+    scripts: embedScripts(prose) + READING_SCRIPT,
+    jsonLd: preview ? undefined : {
+      '@context': 'https://schema.org', '@type': 'BlogPosting', headline: p.title, description: desc,
+      image: coverUrl, datePublished: isoDate(p.published_at), dateModified: isoDate(p.updated_at || p.published_at),
+      mainEntityOfPage: canonical, keywords: keywords || undefined, wordCount: words, timeRequired: `PT${mins}M`,
+      author: { '@type': 'Person', name: c.brand.name, jobTitle: c.brand.role, url: o, image: o + photo, sameAs: [c.brand.linkedin].filter(Boolean) }
+    },
+    body: `<div class="progress" aria-hidden="true"><i id="rp"></i></div>
+    <article class="post">
+      <header class="phero">
+        <a class="back" href="/blog">&larr; All articles</a>
+        ${preview ? `<div class="ptags"><span>Preview · ${esc(p.status)}</span></div>` : tags.length ? `<div class="ptags">${tags.map(t => `<span>${esc(t)}</span>`).join('')}</div>` : ''}
+        <h1>${esc(p.title)}</h1>
+        ${p.summary ? `<p class="lede">${esc(p.summary)}</p>` : ''}
+        <div class="byline"><img src="${esc(photo)}" alt="" width="44" height="44">
+          <div><b>${esc(c.brand.name)}</b><span>${p.published_at ? esc(niceDate(p.published_at)) + ' · ' : ''}${mins} min read</span></div></div>
+      </header>
+      ${p.cover ? `<figure class="cover"><img src="${esc(p.cover)}" alt="${esc(p.cover_alt || '')}"></figure>` : ''}
+      <div class="pgrid${toc.length >= 2 ? ' has-toc' : ''}">
+        ${toc.length >= 2 ? `<nav class="toc" aria-label="Contents"><p>Contents</p><ol>${toc.map(h =>
+          `<li${h.sub ? ' class="sub"' : ''}><a href="#${esc(h.id)}">${esc(h.text)}</a></li>`).join('')}</ol></nav>` : ''}
+        <div class="prose">${prose}</div>
+      </div>
+      <footer class="pend">
+        <div class="share"><span>Share</span>
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=${enc}" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://x.com/intent/post?url=${enc}&amp;text=${encT}" target="_blank" rel="noopener">X</a>
+          <a href="mailto:?subject=${encT}&amp;body=${enc}">Email</a>
+          <button type="button" id="copy" data-url="${esc(url)}">Copy link</button></div>
+        <div class="author"><img src="${esc(photo)}" alt="" width="64" height="64">
+          <div><b>${esc(c.brand.name)}</b><span>${esc(c.brand.role)}</span></div>
+          <a class="btn" href="/#book">Book a call</a></div>
+      </footer>
+    </article>
+    ${more.length ? `<section class="more"><h2>More articles</h2><div class="agrid">${more.map(m => acardHtml(cardData(m))).join('')}</div></section>` : '<div class="pad"></div>'}`
+  });
+}
+
+// Reading progress, the active contents entry, and copy-link. Small, and no library.
+const READING_SCRIPT = `<script>
+(function(){
+  var bar=document.getElementById('rp'),art=document.querySelector('.prose');
+  function upd(){if(!bar||!art)return;var r=art.getBoundingClientRect(),h=r.height-innerHeight*.5;
+    bar.style.transform='scaleX('+Math.min(1,Math.max(0,-r.top/(h>0?h:1)))+')'}
+  var q=false;addEventListener('scroll',function(){if(q)return;q=true;requestAnimationFrame(function(){q=false;upd()})},{passive:true});upd();
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if(links.length&&'IntersectionObserver' in window){var byId={};
+    links.forEach(function(a){byId[decodeURIComponent(a.getAttribute('href').slice(1))]=a});
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;
+      links.forEach(function(a){a.classList.remove('on')});var a=byId[e.target.id];if(a)a.classList.add('on')})},{rootMargin:'-15% 0px -70% 0px'});
+    Object.keys(byId).forEach(function(id){var h=document.getElementById(id);if(h)io.observe(h)})}
+  var cp=document.getElementById('copy');
+  if(cp)cp.addEventListener('click',function(){
+    (navigator.clipboard?navigator.clipboard.writeText(cp.dataset.url):Promise.reject()).then(function(){cp.textContent='Link copied'},function(){prompt('Copy this link',cp.dataset.url)})});
+})();
+</script>`;
 
 app.get('/blog/:slug', A(async (req, res, next) => {
   const p = await db.one("SELECT * FROM posts WHERE slug=? AND status='published'", [clean(req.params.slug, 120)]);
   if (!p) return next();
   track(req, '/blog/' + p.slug);
-  const c = await kvGet('content'), o = origin(req), url = `${o}/blog/${p.slug}`;
-  const desc = p.summary || stripMd(p.body).slice(0, 180);
-  const share = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
-  const prose = renderMarkdown(p.body);
-  res.type('html').send(await shell({
-    req, title: `${p.title} — ${c.brand.name}`, desc, canonical: url, image: p.cover, type: 'article',
-    scripts: embedScripts(prose),
-    jsonLd: {
-      '@context': 'https://schema.org', '@type': 'BlogPosting', headline: p.title, description: desc,
-      image: p.cover ? (/^https?:/.test(p.cover) ? p.cover : o + p.cover) : undefined,
-      datePublished: isoDate(p.published_at), dateModified: isoDate(p.updated_at || p.published_at), mainEntityOfPage: url,
-      keywords: p.tags || undefined,
-      author: { '@type': 'Person', name: c.brand.name, jobTitle: c.brand.role, url: o, sameAs: [c.brand.linkedin].filter(Boolean) }
-    },
-    body: `<article class="post">
-      <header>
-        ${p.tags ? `<div class="ptags">${p.tags.split(',').map(t => t.trim()).filter(Boolean).map(t => `<span>${esc(t)}</span>`).join('')}</div>` : ''}
-        <h1>${esc(p.title)}</h1>
-        ${p.summary ? `<p class="lede">${esc(p.summary)}</p>` : ''}
-        <div class="pmeta">${esc(c.brand.name)} · ${esc(niceDate(p.published_at))} · ${readMins(p.body)} min read</div>
-      </header>
-      ${p.cover ? `<figure class="hero"><img src="${esc(p.cover)}" alt="${esc(p.cover_alt || '')}"></figure>` : ''}
-      <div class="prose">${prose}</div>
-      <div class="pshare"><a class="btn" href="${esc(share)}" target="_blank" rel="noopener">Share on LinkedIn</a>
-        <a class="btn alt" href="/#book">Book a call</a></div>
-    </article>`
-  }));
+  res.type('html').send(await postPage(req, p));
 }));
 
 // authenticated preview — renders drafts exactly as they will publish
 app.get('/admin/preview/:id', auth, A(async (req, res) => {
   const p = await db.one('SELECT * FROM posts WHERE id=?', [+req.params.id]);
   if (!p) return res.status(404).send('No such post.');
-  const c = await kvGet('content'), o = origin(req);
-  res.type('html').send(await shell({
-    req, title: `[${p.status}] ${p.title}`, desc: p.summary || '', canonical: `${o}/blog/${p.slug}`, image: p.cover,
-    body: `<article class="post">
-      <header><div class="ptags"><span>Preview · ${esc(p.status)}</span></div>
-        <h1>${esc(p.title)}</h1>${p.summary ? `<p class="lede">${esc(p.summary)}</p>` : ''}
-        <div class="pmeta">${esc(c.brand.name)} · ${readMins(p.body)} min read</div></header>
-      ${p.cover ? `<figure class="hero"><img src="${esc(p.cover)}" alt="${esc(p.cover_alt || '')}"></figure>` : ''}
-      <div class="prose">${renderMarkdown(p.body)}</div></article>`
-  }));
+  res.type('html').send(await postPage(req, p, { preview: true }));
 }));
 
 app.get('/rss.xml', A(async (req, res) => {

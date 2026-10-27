@@ -12,6 +12,7 @@
 <!-- Apple devices get real SF Pro from the system stack; everyone else falls back to Inter. 3 faces, not 10. -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/tokens.css?v={{V}}">
+<link rel="stylesheet" href="/articles.css?v={{AV}}">
 <style>
 /* Design tokens and the legacy aliases come from /tokens.css. */
 *{box-sizing:border-box;margin:0;padding:0}
@@ -275,6 +276,11 @@ footer a{color:var(--accent-text)}footer a:hover{text-decoration:underline}
 /* Architecture: data packets that travel the pipeline, coloured by stage. */
 .packets circle{fill:currentColor;filter:drop-shadow(0 0 6px currentColor) drop-shadow(0 0 2px currentColor)}
 
+/* articles: heading row with the 'all articles' link on the right */
+.ahead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;max-width:none}
+.ahead>div{max-width:700px}
+.alink{flex:none;font-size:17px;color:var(--accent-text);white-space:nowrap;padding-bottom:6px}.alink:hover{text-decoration:underline}
+@media(max-width:700px){.ahead{flex-direction:column;align-items:flex-start}}
 .reveal{opacity:0;transform:translateY(20px);transition:opacity .8s cubic-bezier(.28,.11,.32,1),transform .8s cubic-bezier(.28,.11,.32,1)}.reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
 </style>
@@ -402,6 +408,7 @@ footer a{color:var(--accent-text)}footer a:hover{text-decoration:underline}
 </div></section>
 
 <section id="work"><div class="wrap"><div class="head reveal"><h2 id="enH"></h2><p id="enP"></p></div><div class="eng reveal" id="eng"></div></div></section>
+<section id="articles" hidden><div class="wrap"><div class="head reveal ahead"><div><h2>Field notes</h2><p>Notes from the work: what goes wrong in data migration, and what keeps it from going wrong.</p></div><a class="alink" href="/blog">All articles &rarr;</a></div><div class="agrid" id="agrid"></div></div></section>
 <section id="process"><div class="wrap"><div class="head reveal"><h2 id="prH"></h2><p id="prP"></p></div><div class="proc reveal" id="proc"></div></div></section>
 <section class="dark" id="about"><div class="wrap about reveal"><img id="abImg" alt="Vipin Singh"><div><h2 id="abH"></h2><p id="abP"></p><div class="stats" id="stats"></div><a class="btn" id="li" target="_blank" rel="noopener">View LinkedIn profile</a></div></div></section>
 
@@ -448,13 +455,16 @@ function notice(h,body,retry){const d=document.createElement('div');d.className=
   d.innerHTML=`<div><h1>${h}</h1><p>${body}</p>${retry?'<button class="btn" type="button">Try again</button>':''}</div>`;
   if(retry)d.querySelector('button').addEventListener('click',()=>location.reload());
   document.body.replaceChildren(d)}
-let C;
+let C,POSTS=[];
 // Opened over file:// the page can never work, so say exactly that.
 if(location.protocol==='file:'){
   notice('Open this through the server','This page builds itself from <code>/api/content</code>, so it cannot run as a local file. Double-click <code>start.bat</code>, or run <code>npm install</code> then <code>npm start</code>, and open <code>http://localhost:3000</code>.',false);return}
 // A failed fetch is a different fault: the server may be starting, or the request
 // may have failed once. Do not claim it is not running, and offer a retry.
-try{const r=await fetch('/api/content');if(!r.ok)throw new Error('HTTP '+r.status);C=await r.json()}
+// the latest articles load in parallel with the content; a failure there only hides the section
+try{const [r,rp]=await Promise.all([fetch('/api/content'),fetch('/api/posts?limit=3').catch(()=>null)]);
+  if(!r.ok)throw new Error('HTTP '+r.status);C=await r.json();
+  try{POSTS=rp&&rp.ok?await rp.json():[]}catch(e){POSTS=[]}}
 catch(e){notice('Could not load the page content','The request to <code>/api/content</code> did not come back. If the server is still starting, give it a moment and try again.',true);return}
 const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
 
@@ -485,6 +495,16 @@ if(C.engagements&&C.engagements.items&&C.engagements.items.length){
     return `<article${h?` style="--h:var(${h})"`:''}><span class="sector">${esc(e.sector)}</span><h3>${esc(e.client)}</h3><p>${esc(e.scope)}</p><p class="out"><b>Outcome</b>${esc(e.outcome)}</p></article>`;
   }).join('');
 }else{document.getElementById('work').remove();document.querySelector('.nav a[href="#work"]')?.closest('li')?.remove()}
+// articles: same card markup as acardHtml() in server.js
+if(POSTS.length){
+  $('agrid').innerHTML=POSTS.map(d=>`<a class="acard" href="/blog/${esc(d.slug)}">
+    ${d.cover?`<figure class="acover"><img src="${esc(d.cover)}" alt="" loading="lazy" decoding="async"></figure>`
+      :`<div class="acover afallback"><span class="spectrum" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span></div>`}
+    <div class="ainfo">${d.tag?`<span class="atag">${esc(d.tag)}</span>`:''}<h3>${esc(d.title)}</h3>
+      <span class="ameta">${esc(d.date)} · ${d.mins} min read</span></div>
+    <span class="ago" aria-hidden="true">&#8599;</span></a>`).join('');
+  $('articles').hidden=false;
+}else{$('articles').remove()}
 $('prH').textContent=C.process.heading;$('prP').textContent=C.process.intro;
 $('proc').innerHTML=C.process.steps.map(s=>`<div><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div>`).join('');
 $('abH').textContent=C.about.heading;$('abP').textContent=C.about.text;$('abImg').src=C.about.photo;$('li').href=C.brand.linkedin;
@@ -657,7 +677,7 @@ if(!reduce){
   });
 
   // Grids: cards arrive one after another, then gain a cursor spotlight and a slight tilt.
-  [['svc','spot tilt'],['eng','spot tilt'],['metrics','spot'],['plat','spot'],['proc','']].forEach(([id,cls])=>{
+  [['svc','spot tilt'],['eng','spot tilt'],['metrics','spot'],['plat','spot'],['agrid',''],['proc','']].forEach(([id,cls])=>{
     const box=$(id);if(!box)return;box.classList.add('stagger');
     [...box.children].forEach((c,i)=>{c.style.setProperty('--i',i);if(cls)c.classList.add(...cls.split(' '))});
   });
