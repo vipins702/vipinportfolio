@@ -121,6 +121,12 @@ section{position:relative;z-index:1;padding:clamp(72px,9vw,124px) 0}
 .svc{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
 .svc div{background:var(--card);padding:36px 32px;border-radius:var(--radius);
   border:1px solid var(--separator);box-shadow:var(--shadow-card)}
+.svc div{position:relative;overflow:hidden}
+.svc div::before{content:"";position:absolute;top:-80px;right:-60px;width:220px;height:170px;border-radius:50%;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--h,var(--accent)) 22%,transparent),transparent);pointer-events:none}
+.sico{display:grid;place-items:center;width:52px;height:52px;border-radius:15px;margin-bottom:22px;color:var(--h,var(--accent-text));
+  background:color-mix(in srgb,var(--h,var(--accent)) 13%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--h,var(--accent)) 28%,transparent)}
+.sico svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .svc h3{font-size:24px;letter-spacing:-.015em;margin-bottom:10px}
 .svc p{color:var(--mute);font-size:17px;max-width:32em}
 @media(max-width:700px){.svc{grid-template-columns:1fr}}
@@ -134,6 +140,10 @@ section{position:relative;z-index:1;padding:clamp(72px,9vw,124px) 0}
 /* platforms */
 .plat{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--lineD);border:1px solid var(--lineD);border-radius:var(--radius-xl);overflow:hidden}
 .plat div{background:var(--card);padding:24px 22px}
+.pmark{display:inline-grid;place-items:center;min-width:44px;height:44px;padding:0 9px;border-radius:12px;margin-bottom:16px;font-style:normal;
+  font-size:14px;font-weight:700;letter-spacing:-.01em;color:#fff;
+  background:linear-gradient(140deg,var(--h,var(--accent)),color-mix(in srgb,var(--h,var(--accent)) 55%,#000));
+  box-shadow:0 8px 20px -10px var(--h,var(--accent)),inset 0 1px 0 rgba(255,255,255,.25)}
 .plat b{display:block;font-size:16px;font-weight:600;letter-spacing:-.01em;margin-bottom:6px}
 .plat span{color:var(--mute);font-size:14px;line-height:1.45}
 @media(max-width:900px){.plat{grid-template-columns:repeat(2,1fr)}}
@@ -475,13 +485,26 @@ $('badges').innerHTML=C.hero.badges.map(b=>`<span>${esc(b)}</span>`).join('');
 $('stl').innerHTML=C.hero.chapters.map((c,i)=>`<span data-i="${i}">${esc(c.label)}</span>`).join('');
 $('storyBig').innerHTML=`${esc(C.story.line1)} <span class="tone">${esc(C.story.line2)}</span>`;$('storyText').textContent=C.story.text;
 $('svH').textContent=C.services.heading;$('svP').textContent=C.services.intro;
-$('svc').innerHTML=C.services.items.map(s=>`<div><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div>`).join('');
+// Services and platforms carry a small hue-coded mark. Matched on the words in the title,
+// so items edited in the CMS still get a fitting icon; anything unmatched gets the default.
+const HUES=['--hue-map','--hue-stage','--hue-verify','--hue-profile','--hue-source','--hue-load'];
+const SVC_ICONS=[[/strateg|roadmap|approach/i,'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM15.5 8.5l-2 5-5 2 2-5z'],
+  [/m&a|merg|carve|divest|acqui/i,'M6 4v5a5 5 0 0 0 5 5h2M18 4v5a5 5 0 0 1-5 5M12 14v6M9 17l3 3 3-3'],
+  [/platform|integrat|connect/i,'M12 3l9 5-9 5-9-5zM3 13l9 5 9-5M3 17.5l9 5 9-5'],
+  [/quality|dedup|cleans|profil/i,'M4 5h16l-6 7v6l-4 2v-8z'],
+  [/cutover|go-live|reconcil|load/i,'M4 12l5 5L20 6M4 19h16'],
+  [/\bai\b|automat|machine|rag/i,'M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3M7 6h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zM10 10h4v4h-4z']];
+const svcIcon=t=>(SVC_ICONS.find(([re])=>re.test(t))||[0,'M12 4l8 4.5v7L12 20l-8-4.5v-7z'])[1];
+const PLAT_MARKS=[[/s\/?4|hana|sap/i,'S/4'],[/syniti/i,'Sy'],[/oracle/i,'Or'],[/snowflake|warehouse|cloud/i,'DW'],[/crm/i,'CRM'],
+  [/sql|ssis/i,'SQL'],[/python|\bai\b/i,'Py'],[/git|jira|tfs/i,'Git']];
+const platMark=n=>(PLAT_MARKS.find(([re])=>re.test(n))||[0,String(n).replace(/[^A-Za-z ]/g,'').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase()])[1];
+$('svc').innerHTML=C.services.items.map((s,i)=>`<div style="--h:var(${HUES[i%6]})"><span class="sico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="${svcIcon(s.title)}"/></svg></span><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div>`).join('');
 $('imH').textContent=C.impact.heading;$('imP').textContent=C.impact.intro;
 $('metrics').innerHTML=C.impact.metrics.map(m=>`<div class="metric"><b><span class="cnt" data-v="${esc(m.value)}">0</span>${esc(m.suffix)}</b><span>${esc(m.label)}</span><small>${esc(m.note)}</small></div>`).join('');
 // platforms: optional, so an older restored backup degrades to hiding the section
 if(C.platforms&&C.platforms.items&&C.platforms.items.length){
   $('plH').textContent=C.platforms.heading;$('plP').textContent=C.platforms.intro;
-  $('plat').innerHTML=C.platforms.items.map(p=>`<div><b>${esc(p.name)}</b><span>${esc(p.note)}</span></div>`).join('');
+  $('plat').innerHTML=C.platforms.items.map((p,i)=>`<div style="--h:var(${HUES[i%6]})"><i class="pmark" aria-hidden="true">${esc(platMark(p.name))}</i><b>${esc(p.name)}</b><span>${esc(p.note)}</span></div>`).join('');
 }else{document.getElementById('platforms').remove()}
 // engagements: optional, so a restored pre-engagements backup degrades to hiding the section
 if(C.engagements&&C.engagements.items&&C.engagements.items.length){
@@ -529,7 +552,7 @@ navToggle.addEventListener('click',()=>{const open=navList.classList.toggle('ope
 navList.addEventListener('click',e=>{if(e.target.closest('a')){navList.classList.remove('open');
   navToggle.setAttribute('aria-expanded','false');navToggle.setAttribute('aria-label','Open menu')}});
 const opts=C.booking.topics.map(t=>`<option>${esc(t)}</option>`).join('');$('at').innerHTML=opts;$('ls').innerHTML=opts;
-$('contacts').innerHTML=[C.brand.email&&`<a href="mailto:${esc(C.brand.email)}">${esc(C.brand.email)}</a>`,C.brand.location&&`<span class="hint">${esc(C.brand.location)}</span>`].filter(Boolean).join('');
+$('contacts').innerHTML=[C.brand.linkedin&&`<a href="${esc(C.brand.linkedin)}" target="_blank" rel="noopener">Connect on LinkedIn</a>`,C.brand.location&&`<span class="hint">${esc(C.brand.location)}</span>`].filter(Boolean).join('');
 
 // ----- hero: scroll-scrubbed frames -----
 const N=120,imgs=[],cv=$('cv'),ctx=cv.getContext('2d'),hero=$('top'),CROP=.88; // crop bottom 12% (removes generator watermark)

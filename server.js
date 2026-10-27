@@ -302,7 +302,10 @@ app.use((req, res, next) => { res.set({ 'X-Content-Type-Options': 'nosniff', 'X-
 app.use(A(async (req, res, next) => { await boot(); next(); }));
 
 // ---------- public API ----------
-app.get('/api/content', A(async (req, res) => res.json(await kvGet('content'))));
+// The contact email is private: notifications use it, the public site does not show it,
+// so it is left out of the public copy. The CMS reads the full record from /api/admin/content.
+const publicContent = c => c?.brand ? { ...c, brand: { ...c.brand, email: undefined } } : c;
+app.get('/api/content', A(async (req, res) => res.json(publicContent(await kvGet('content')))));
 app.get('/api/slots', A(async (req, res) => res.json({ slots: await slotsFor(clean(req.query.date, 10)), duration: (await kvGet('settings')).duration })));
 
 app.post('/api/leads', limit(5, 10 * 60e3), A(async (req, res) => {
@@ -739,6 +742,7 @@ app.put('/api/admin/posts/:id', auth, A(async (req, res) => {
 }));
 app.delete('/api/admin/posts/:id', auth, A(async (req, res) => { await db.run('DELETE FROM posts WHERE id=?', [+req.params.id]); res.json({ ok: true }); }));
 
+app.get('/api/admin/content', auth, A(async (req, res) => res.json(await kvGet('content'))));
 app.put('/api/admin/content', auth, A(async (req, res) => { await kvSet('content', req.body); res.json({ ok: true }); }));
 app.post('/api/admin/content/reset', auth, A(async (req, res) => { await kvSet('content', require('./default-content.js')); res.json({ ok: true }); }));
 app.get('/api/admin/settings', auth, A(async (req, res) => res.json(await kvGet('settings'))));

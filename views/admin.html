@@ -643,7 +643,7 @@ function field(v,path,label){
 function setPath(o,p,v){const k=p.split('.');let a=o;while(k.length>1)a=a[k.shift()];a[k[0]]=v}
 function getPath(o,p){return p.split('.').reduce((a,k)=>a[k],o)}
 const LABELS={brand:'Brand & contact',seo:'SEO',hero:'Hero (video chapters)',story:'Story',services:'Services',platforms:'Platforms',impact:'Results',engagements:'Engagements',process:'Process',about:'About',booking:'Booking',contact:'Contact',footer:'Footer'};
-async function content(){const D=await (await fetch('/api/content')).json();let tab=localStorage.cmsTab||'brand';
+async function content(){const D=await api('content');let tab=localStorage.cmsTab||'brand';
   const render=()=>{$('#main').innerHTML=`<h1>Edit website</h1><p class="sub">Change any text, list or image. Save to publish instantly.</p>${banner()}
   <div class="tabs">${Object.keys(LABELS).map(k=>`<button data-t="${k}" class="${k===tab?'on':''}">${LABELS[k]}</button>`).join('')}</div>
   <div class="panel" id="ed">${field(D[tab],tab,LABELS[tab])}</div>
