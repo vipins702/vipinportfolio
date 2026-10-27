@@ -253,6 +253,12 @@ textarea{min-height:104px;resize:vertical}
 .notice p{margin-top:14px;color:var(--mute);font-size:17px;max-width:30em}
 .notice code{font-family:var(--font-mono);font-size:.9em;background:var(--bg-sunken);padding:.16em .4em;border-radius:var(--radius-xs)}
 .notice .btn{margin-top:26px}
+.vcount{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:12.5px;color:var(--mute);font-variant-numeric:tabular-nums}
+.vcount span{display:inline-flex;align-items:center;gap:7px}
+.vcount span+span::before{content:"";width:3px;height:3px;border-radius:50%;background:currentColor;opacity:.5;margin-right:11px}
+.vcount .live{color:var(--text);font-weight:600}
+.vcount .live i{width:8px;height:8px;border-radius:50%;background:var(--hue-load);box-shadow:0 0 0 0 color-mix(in srgb,var(--hue-load) 60%,transparent);animation:vpulse 2s infinite}
+@keyframes vpulse{70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
 footer{position:relative;z-index:1;background:var(--paper);color:var(--mute);padding:36px 0;font-size:12px;border-top:1px solid var(--lineD)}
 footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
 footer .brand{font-size:17px;font-weight:600;letter-spacing:-.012em;color:var(--text)}
@@ -488,7 +494,7 @@ footer a{color:var(--accent-text)}footer a:hover{text-decoration:underline}
   <div class="contacts" id="contacts"></div>
 </div></section>
 
-<footer><div class="wrap"><div><div class="brand" id="fBrand"></div><div id="fRole"></div></div><div id="fNote"></div></div></footer>
+<footer><div class="wrap"><div><div class="brand" id="fBrand"></div><div id="fRole"></div></div><div class="vcount" id="vcount" hidden></div><div id="fNote"></div></div></footer>
 
 <script>
 (async function(){
@@ -842,6 +848,18 @@ async function submit(form,url,msg,extra,doneTitle,doneText){
     catch(err){m.textContent=err.message;m.className='msg err';btn.disabled=false}})}
 submit($('apptForm'),'/api/appointments','aMsg',()=>({time:picked}),'Request received',b=>`We’ve noted ${esc(b.date)} at ${esc(b.time)}. A confirmation will be sent to ${esc(b.email)}.`);
 submit($('leadForm'),'/api/leads','lMsg',()=>({}),'Message sent','Thank you. You will hear back within one business day.');
+})();
+</script>
+<script>
+// Count this visit, then show the live counters in the footer. Same as HIT_SCRIPT in server.js.
+(function(){
+  var f=function(n){return Number(n).toLocaleString()};
+  fetch('/api/hit',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({p:'/',r:document.referrer})})
+  .catch(function(){}).then(function(){return fetch('/api/visits')}).then(function(r){return r.json()}).then(function(v){
+    var el=document.getElementById('vcount');if(!el)return;
+    el.innerHTML='<span class="live"><i></i>'+f(v.now)+' here now</span><span>'+f(v.today)+' today</span><span>'+f(v.visits)+' visits since '+
+      new Date(v.since+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+'</span>';el.hidden=false;
+  }).catch(function(){});
 })();
 </script>
 </body>

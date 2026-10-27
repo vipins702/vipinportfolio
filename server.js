@@ -193,24 +193,30 @@ const sourceOf = ref => {
   if (hit) return hit[1];
   try { return new URL(ref).hostname.replace(/^www\./, ''); } catch { return 'Other'; }
 };
-const BOT = /bot|crawl|spider|slurp|bingpreview|facebookexternalhit|headless|lighthouse|monitor|curl|wget|python-requests|axios|postman/i;
+const BOT = /bot|crawl|spider|slurp|bingpreview|facebookexternalhit|whatsapp|telegram|skypeuripreview|embedly|preview|headless|lighthouse|pagespeed|gtmetrix|monitor|uptime|curl|wget|python|go-http|node-fetch|okhttp|java\/|axios|postman|vercel/i;
 const visitorId = req => crypto.createHmac('sha256', SECRET + new Date().toISOString().slice(0, 10))
   .update((req.ip || '') + '|' + (req.get('user-agent') || '')).digest('hex').slice(0, 24);
 
-// Fire-and-forget: a slow or failing write must never delay a page.
-function track(req, pathName) {
-  try {
-    const ua = req.get('user-agent') || '';
-    if (BOT.test(ua)) return;
-    const ref = req.get('referer') || '';
-    let sameHost = false;
-    try { sameHost = new URL(ref).host === req.get('host'); } catch { }
-    db.run('INSERT INTO pageviews(path,source,referrer,visitor,device,day) VALUES(?,?,?,?,?,?)', [
-      pathName.slice(0, 200), sameHost ? 'Internal' : sourceOf(ref), ref.slice(0, 300),
-      visitorId(req), /Mobile|Android|iPhone|iPad/i.test(ua) ? 'Mobile' : 'Desktop',
-      new Date().toISOString().slice(0, 10)]).catch(() => {});
-  } catch (e) { /* analytics must never break a page render */ }
+// Visits are recorded from a beacon the page sends once it has loaded, not from the
+// HTML request: link previews, crawlers and scripts fetch the HTML but rarely run it.
+// The write is awaited, because a serverless function is frozen once it responds.
+// A signed-in admin is not counted, and a reload of the same page within 30 minutes
+// by the same visitor is one view, not several.
+async function record(req, pathName, ref) {
+  const ua = req.get('user-agent') || '';
+  if (BOT.test(ua) || readToken(cookie(req, 'sid'))) return false;
+  const visitor = visitorId(req);
+  if (await db.one("SELECT 1 AS x FROM pageviews WHERE visitor=? AND path=? AND created_at > now() - interval '30 minutes'", [visitor, pathName])) return false;
+  let sameHost = false;
+  try { sameHost = new URL(ref).host === req.get('host'); } catch { }
+  await db.run('INSERT INTO pageviews(path,source,referrer,visitor,device,day) VALUES(?,?,?,?,?,?)', [
+    pathName, sameHost ? 'Internal' : sourceOf(ref), ref.slice(0, 300), visitor,
+    /Mobile|Android|iPhone|iPad/i.test(ua) ? 'Mobile' : 'Desktop', new Date().toISOString().slice(0, 10)]);
+  return true;
 }
+// Only real public pages are counted: the homepage, the article index and published articles.
+const countable = async p => p === '/' || p === '/blog' ||
+  (/^\/blog\/[a-z0-9-]{1,120}$/.test(p) && !!(await db.one("SELECT 1 AS x FROM posts WHERE slug=? AND status='published'", [p.slice(6)])));
 
 // ---------- blog: slugs, markdown subset, embeds ----------
 const slugify = s => String(s ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
@@ -310,6 +316,26 @@ app.use(A(async (req, res, next) => { await boot(); next(); }));
 // so it is left out of the public copy. The CMS reads the full record from /api/admin/content.
 const publicContent = c => c?.brand ? { ...c, brand: { ...c.brand, email: undefined } } : c;
 app.get('/api/content', A(async (req, res) => res.json(publicContent(await kvGet('content')))));
+app.post('/api/hit', limit(60, 10 * 60e3), A(async (req, res) => {
+  const p = clean(req.body?.p, 200);
+  const counted = await countable(p) ? await record(req, p, clean(req.body?.r, 300)) : false;
+  res.json({ ok: true, counted });
+}));
+// Public, genuine counters. "visits" counts each visitor once per day; "views" counts pages
+// read. "now" is distinct visitors in the last five minutes.
+app.get('/api/visits', A(async (req, res) => {
+  const n = async (sql, a = []) => +((await db.one(sql, a))?.c || 0);
+  const today = new Date().toISOString().slice(0, 10), p = clean(req.query.path, 200);
+  const first = await db.one('SELECT MIN(day) AS d FROM pageviews');
+  res.set('Cache-Control', 'no-store').json({
+    now: await n("SELECT COUNT(DISTINCT visitor) AS c FROM pageviews WHERE created_at > now() - interval '5 minutes'"),
+    today: await n('SELECT COUNT(DISTINCT visitor) AS c FROM pageviews WHERE day=?', [today]),
+    visits: await n('SELECT COUNT(*) AS c FROM (SELECT DISTINCT day, visitor FROM pageviews) t'),
+    views: await n('SELECT COUNT(*) AS c FROM pageviews'),
+    since: first?.d || today,
+    ...(p ? { reads: await n('SELECT COUNT(*) AS c FROM pageviews WHERE path=?', [p]) } : {})
+  });
+}));
 app.get('/api/slots', A(async (req, res) => res.json({ slots: await slotsFor(clean(req.query.date, 10)), duration: (await kvGet('settings')).duration })));
 
 app.post('/api/leads', limit(5, 10 * 60e3), A(async (req, res) => {
@@ -812,7 +838,6 @@ const view = name => fs.readFileSync(path.join(__dirname, 'views', name), 'utf8'
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 app.get('/', A(async (req, res) => {
   const c = await kvGet('content');
-  track(req, '/');
   res.type('html').send(view('index.html')
     .replaceAll('{{TITLE}}', esc(c.seo.title)).replaceAll('{{DESC}}', esc(c.seo.description))
     .replaceAll('{{V}}', assetV('tokens.css')).replaceAll('{{AV}}', assetV('articles.css')));
@@ -862,10 +887,25 @@ ${jsonLd ?`<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/
 <ul><li><a href="/#services">Services</a></li><li><a href="/#work">Engagements</a></li><li><a href="/blog">Articles</a></li><li><a href="/#book" class="btn">Book a call</a></li></ul></nav>
 <main>${body}</main>
 <footer><div class="bwrap"><div><b>${esc(c.brand.name)}</b><div>${esc(c.brand.role)}</div></div>
-<div><a href="/blog">Articles</a> · <a href="/rss.xml">RSS</a> · <a href="${esc(c.brand.linkedin)}" target="_blank" rel="noopener">LinkedIn</a></div></div></footer>
-${scripts}
+<div><a href="/blog">Articles</a> · <a href="/rss.xml">RSS</a> · <a href="${esc(c.brand.linkedin)}" target="_blank" rel="noopener">LinkedIn</a></div>
+<div class="vcount" id="vcount" hidden></div></div></footer>
+${scripts}${req.path.startsWith('/admin') ? '' : HIT_SCRIPT}
 </body></html>`;
 }
+
+// Shared by every public page: count this view, then show the live counters.
+const HIT_SCRIPT = `<script>
+(function(){
+  var p=location.pathname.replace(/[/]+$/,'')||'/',f=function(n){return Number(n).toLocaleString()};
+  fetch('/api/hit',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({p:p,r:document.referrer})})
+  .catch(function(){}).then(function(){return fetch('/api/visits?path='+encodeURIComponent(p))}).then(function(r){return r.json()}).then(function(v){
+    var el=document.getElementById('vcount');
+    if(el){el.innerHTML='<span class="live"><i></i>'+f(v.now)+' here now</span><span>'+f(v.today)+' today</span><span>'+f(v.visits)+' visits since '+
+      new Date(v.since+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+'</span>';el.hidden=false}
+    var rd=document.getElementById('reads');if(rd&&v.reads){rd.textContent=' · '+f(v.reads)+(v.reads===1?' read':' reads');}
+  }).catch(function(){});
+})();
+</script>`;
 
 const pubPosts = () => db.all("SELECT * FROM posts WHERE status='published' ORDER BY published_at DESC");
 // Listing order: featured articles first, then newest.
@@ -895,7 +935,6 @@ app.get('/api/posts', A(async (req, res) => {
 }));
 
 app.get('/blog', A(async (req, res) => {
-  track(req, '/blog');
   const c = await kvGet('content'), o = origin(req), posts = await listPosts();
   const grid = posts.length
     ? `<div class="agrid">${posts.map((p, i) => acardHtml(cardData(p), i === 0 && posts.length >= 3)).join('')}</div>`
@@ -966,7 +1005,7 @@ async function postPage(req, p, { preview = false } = {}) {
         <h1>${esc(p.title)}</h1>
         ${p.summary ? `<p class="lede">${esc(p.summary)}</p>` : ''}
         <div class="byline"><img src="${esc(photo)}" alt="" width="44" height="44">
-          <div><b>${esc(c.brand.name)}</b><span>${p.published_at ? esc(niceDate(p.published_at)) + ' · ' : ''}${mins} min read</span></div></div>
+          <div><b>${esc(c.brand.name)}</b><span>${p.published_at ? esc(niceDate(p.published_at)) + ' · ' : ''}${mins} min read<span id="reads"></span></span></div></div>
       </header>
       ${p.cover ? `<figure class="cover"><img src="${esc(p.cover)}" alt="${esc(p.cover_alt || '')}"></figure>` : ''}
       <div class="pgrid${toc.length >= 2 ? ' has-toc' : ''}">
@@ -1041,7 +1080,6 @@ const READING_SCRIPT = `<script>
 app.get('/blog/:slug', A(async (req, res, next) => {
   const p = await db.one("SELECT * FROM posts WHERE slug=? AND status='published'", [clean(req.params.slug, 120)]);
   if (!p) return next();
-  track(req, '/blog/' + p.slug);
   res.type('html').send(await postPage(req, p));
 }));
 

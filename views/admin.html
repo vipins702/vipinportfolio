@@ -375,7 +375,7 @@ ${s.mail.configured?'':`<div class="banner"><div><b>Email notifications are off.
     <div><h3 class="h3">Where they came from</h3>${barRows(t.sources,t.views)}</div>
     <div><h3 class="h3">Most read pages</h3>${barRows(t.pages,t.views)}</div>
   </div>
-  <p class="sm" style="margin-top:12px">Counts exclude bots. Visitors are identified by a daily-rotating hash — no cookies, nothing that can be traced back to a person.</p>
+  <p class="sm" style="margin-top:12px">Counts exclude bots, link previews and your own visits while signed in. Visitors are identified by a daily-rotating hash — no cookies, nothing that can be traced back to a person.</p>
 </div>
 <div class="cards"><div class="stat"><b>${s.newLeads}</b><span>New leads</span></div><div class="stat"><b>${s.leads}</b><span>Total leads</span></div><div class="stat"><b>${s.pending}</b><span>Appointments to confirm</span></div><div class="stat"><b>${s.appts}</b><span>Total appointments</span></div></div>
 <div class="panel"><h2>Upcoming appointments</h2>${s.upcoming.length?`<div class="tw"><table><tr><th>When</th><th>Who</th><th>Topic</th><th>Status</th></tr>${s.upcoming.map(a=>`<tr><td>${esc(a.date)} · ${esc(a.time)}</td><td>${esc(a.name)}<div class="sm">${esc(a.email)}</div></td><td>${esc(a.topic)}</td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('')}</table></div>`:'<p class="sm">No upcoming appointments yet.</p>'}</div>
