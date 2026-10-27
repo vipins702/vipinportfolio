@@ -929,6 +929,10 @@ async function postPage(req, p, { preview = false } = {}) {
   const photo = c.about?.photo || '/img/vipin.jpg';
   const more = preview ? [] : await listPosts(3, p.id);
   const enc = encodeURIComponent(url), encT = encodeURIComponent(p.title);
+  let g = -1;
+  const tops = toc.filter(h => !h.sub);
+  const tocItems = toc.map(h => { if (!h.sub) g++;
+    return `<li class="${h.sub ? 'sub' : 'top'}" data-g="${g}"><a href="#${esc(h.id)}">${esc(h.text)}</a></li>`; }).join('');
   const coverUrl = p.cover ? (/^https?:/.test(p.cover) ? p.cover : o + p.cover) : undefined;
   return shell({
     req, title: preview ? `[${p.status}] ${title}` : title, desc, canonical, image: p.cover, type: 'article',
@@ -958,16 +962,26 @@ async function postPage(req, p, { preview = false } = {}) {
       </header>
       ${p.cover ? `<figure class="cover"><img src="${esc(p.cover)}" alt="${esc(p.cover_alt || '')}"></figure>` : ''}
       <div class="pgrid${toc.length >= 2 ? ' has-toc' : ''}">
-        ${toc.length >= 2 ? `<nav class="toc" aria-label="Contents"><p>Contents</p><ol>${toc.map(h =>
-          `<li${h.sub ? ' class="sub"' : ''}><a href="#${esc(h.id)}">${esc(h.text)}</a></li>`).join('')}</ol></nav>` : ''}
-        <div class="prose">${prose}</div>
+        ${toc.length >= 2 ? `<nav class="toc" aria-label="Contents"><p>Contents</p><ol>${tocItems}</ol></nav>` : ''}
+        <div class="prose">
+          ${tops.length >= 2 ? `<details class="tocm"><summary>In this article <span>${tops.length} sections</span></summary><ol>${tops.map(h =>
+            `<li><a href="#${esc(h.id)}">${esc(h.text)}</a></li>`).join('')}</ol></details>` : ''}
+          ${prose}
+        </div>
+        <aside class="prail" aria-label="Reading">
+          <p class="left" id="left" data-mins="${mins}">${mins} min read</p>
+          <div class="sicons"><span>Share</span>
+            <a href="https://www.linkedin.com/sharing/share-offsite/?url=${enc}" target="_blank" rel="noopener" aria-label="Share on LinkedIn" title="LinkedIn">${ICON.li}</a>
+            <a href="https://x.com/intent/post?url=${enc}&amp;text=${encT}" target="_blank" rel="noopener" aria-label="Share on X" title="X">${ICON.x}</a>
+            <button type="button" class="copy" data-url="${esc(url)}" aria-label="Copy link" title="Copy link">${ICON.link}</button></div>
+        </aside>
       </div>
       <footer class="pend">
         <div class="share"><span>Share</span>
           <a href="https://www.linkedin.com/sharing/share-offsite/?url=${enc}" target="_blank" rel="noopener">LinkedIn</a>
           <a href="https://x.com/intent/post?url=${enc}&amp;text=${encT}" target="_blank" rel="noopener">X</a>
           <a href="mailto:?subject=${encT}&amp;body=${enc}">Email</a>
-          <button type="button" id="copy" data-url="${esc(url)}">Copy link</button></div>
+          <button type="button" class="copy" data-url="${esc(url)}">Copy link</button></div>
         <div class="author"><img src="${esc(photo)}" alt="" width="64" height="64">
           <div><b>${esc(c.brand.name)}</b><span>${esc(c.brand.role)}</span></div>
           <a class="btn" href="/#book">Book a call</a></div>
@@ -977,22 +991,42 @@ async function postPage(req, p, { preview = false } = {}) {
   });
 }
 
-// Reading progress, the active contents entry, and copy-link. Small, and no library.
+const ICON = {
+  li: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.75h4V21H3zM9.5 9.75h3.8v1.6h.06c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.77 2.6 4.77 6V21h-4v-5c0-1.2-.02-2.75-1.68-2.75-1.68 0-1.94 1.3-1.94 2.66V21h-4z"/></svg>',
+  x: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.75 3h3.07l-6.7 7.66L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.17-8.2L2 3h6.33l4.36 5.77zm-1.08 16.18h1.7L7.4 4.73H5.58z"/></svg>',
+  link: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/></svg>'
+};
+
+// Reading progress, minutes left, the active contents entry (with its sub-sections opened),
+// copy-link and click-to-zoom images. Small, and no library.
 const READING_SCRIPT = `<script>
 (function(){
-  var bar=document.getElementById('rp'),art=document.querySelector('.prose');
+  var bar=document.getElementById('rp'),art=document.querySelector('.prose'),left=document.getElementById('left');
+  var mins=left?+left.dataset.mins:0;
   function upd(){if(!bar||!art)return;var r=art.getBoundingClientRect(),h=r.height-innerHeight*.5;
-    bar.style.transform='scaleX('+Math.min(1,Math.max(0,-r.top/(h>0?h:1)))+')'}
+    var p=Math.min(1,Math.max(0,-r.top/(h>0?h:1)));bar.style.transform='scaleX('+p+')';
+    if(left){var m=Math.ceil(mins*(1-p));left.textContent=p<.02?mins+' min read':p>.98?'Finished':m+' min left'}}
   var q=false;addEventListener('scroll',function(){if(q)return;q=true;requestAnimationFrame(function(){q=false;upd()})},{passive:true});upd();
   var links=[].slice.call(document.querySelectorAll('.toc a'));
   if(links.length&&'IntersectionObserver' in window){var byId={};
     links.forEach(function(a){byId[decodeURIComponent(a.getAttribute('href').slice(1))]=a});
-    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;
-      links.forEach(function(a){a.classList.remove('on')});var a=byId[e.target.id];if(a)a.classList.add('on')})},{rootMargin:'-15% 0px -70% 0px'});
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;var a=byId[e.target.id];if(!a)return;
+      var g=a.parentNode.dataset.g;
+      links.forEach(function(x){x.classList.toggle('on',x===a);x.parentNode.classList.toggle('open',x.parentNode.dataset.g===g)})})},{rootMargin:'-12% 0px -72% 0px'});
     Object.keys(byId).forEach(function(id){var h=document.getElementById(id);if(h)io.observe(h)})}
-  var cp=document.getElementById('copy');
-  if(cp)cp.addEventListener('click',function(){
-    (navigator.clipboard?navigator.clipboard.writeText(cp.dataset.url):Promise.reject()).then(function(){cp.textContent='Link copied'},function(){prompt('Copy this link',cp.dataset.url)})});
+  [].forEach.call(document.querySelectorAll('.copy'),function(cp){cp.addEventListener('click',function(){
+    (navigator.clipboard?navigator.clipboard.writeText(cp.dataset.url):Promise.reject()).then(function(){
+      cp.classList.add('done');if(!cp.querySelector('svg'))cp.textContent='Link copied';setTimeout(function(){cp.classList.remove('done')},1600)},
+      function(){prompt('Copy this link',cp.dataset.url)})})});
+  var tm=document.querySelector('.tocm');
+  if(tm)tm.addEventListener('click',function(e){if(e.target.closest('a'))tm.open=false});
+  [].forEach.call(document.querySelectorAll('.prose figure.img img'),function(im){
+    im.addEventListener('click',function(){var lb=document.createElement('div');lb.className='lb';lb.setAttribute('role','dialog');lb.setAttribute('aria-label','Image, full size');
+      var big=new Image();big.src=im.currentSrc||im.src;big.alt=im.alt;lb.appendChild(big);document.body.appendChild(lb);
+      void lb.offsetWidth;lb.classList.add('on');
+      function close(){lb.classList.remove('on');setTimeout(function(){lb.remove()},200);removeEventListener('keydown',key)}
+      function key(e){if(e.key==='Escape')close()}
+      lb.addEventListener('click',close);addEventListener('keydown',key)})});
 })();
 </script>`;
 
